@@ -22,5 +22,13 @@ setup(
     ],
 
     packages=find_packages(exclude=('tests*', 'testing*')),
-    install_requires=[],
+    install_requires=[
+        'argparse',
+    ],
+
+    entry_points={
+        'console_scripts': [
+            'pre-commit-mirror = pre_commit_mirror_maker.main:main',
+        ],
+    },
 )
