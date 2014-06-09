@@ -31,4 +31,9 @@ setup(
             'pre-commit-mirror = pre_commit_mirror_maker.main:main',
         ],
     },
+    package_data={
+        'pre_commit_mirror_maker': [
+            'ruby/*',
+        ],
+    },
 )
