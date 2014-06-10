@@ -6,6 +6,7 @@ import os
 import os.path
 import pkg_resources
 import re
+import simplejson
 import subprocess
 
 from pre_commit_mirror_maker.util import from_utf8
@@ -77,7 +78,15 @@ def ruby_get_package_versions(package_name, get_versions_str_fn=None):
     ]))
 
 
+def node_get_package_versions(package_name):
+    output = simplejson.loads(get_output(
+        'npm', 'view', package_name, '--json',
+    ))
+    return output['versions']
+
+
 VERSION_LIST_FUNCTIONS = {
+    'node': node_get_package_versions,
     'ruby': ruby_get_package_versions,
 }
 

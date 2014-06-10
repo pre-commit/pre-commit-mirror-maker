@@ -12,6 +12,7 @@ from pre_commit_mirror_maker.make_repo import _ruby_get_package_version_output
 from pre_commit_mirror_maker.make_repo import cwd
 from pre_commit_mirror_maker.make_repo import format_files_to_directory
 from pre_commit_mirror_maker.make_repo import get_output
+from pre_commit_mirror_maker.make_repo import node_get_package_versions
 from pre_commit_mirror_maker.make_repo import make_repo
 from pre_commit_mirror_maker.make_repo import ruby_get_package_versions
 
@@ -28,6 +29,12 @@ def test_ruby_get_package_version_output():
     # 'scss-lint (1.2.3, 1.1.0, ...)\n'
     ret_re = re.compile(r'^scss-lint \(([0-9\.]+, )+[0-9\.]+\)\n$')
     assert ret_re.match(ret)
+
+
+@pytest.mark.integration
+def test_node_get_package_version_output():
+    ret = node_get_package_versions('jshint')
+    assert ret
 
 
 def test_ruby_get_package_versions():
@@ -158,3 +165,37 @@ def test_make_repo_starting_at_version():
         [mock.ANY, 'Mirror:', '0.24.1'],
         [mock.ANY, 'Mirror:', '0.24.0'],
     ]
+
+
+@pytest.mark.integration
+@pytest.mark.usefixtures('in_git_dir')
+def test_ruby_integration():
+    make_repo('.', 'ruby', 'scss-lint', r'\.scss$', 'scss-lint')
+    # Our files should exist
+    assert os.path.exists('.version')
+    assert os.path.exists('hooks.yaml')
+    assert os.path.exists('__fake_gem.gemspec')
+
+    # Should have made _some_ tags
+    assert get_output('git', 'tag', '-l').strip()
+    # Should have made _some_ commits
+    assert get_output('git', 'log', '--oneline').strip()
+
+    # TODO: test that the gem is installable
+
+
+@pytest.mark.integration
+@pytest.mark.usefixtures('in_git_dir')
+def test_node_integration():
+    make_repo('.', 'node', 'jshint', r'\.js$', 'jshint')
+    # Our files should exist
+    assert os.path.exists('.version')
+    assert os.path.exists('hooks.yaml')
+    assert os.path.exists('package.json')
+
+    # Should have made _some_ tags
+    assert get_output('git', 'tag', '-l').strip()
+    # Should have made _some_ commits
+    assert get_output('git', 'log', '--oneline').strip()
+
+    # TODO: test that the package is installable

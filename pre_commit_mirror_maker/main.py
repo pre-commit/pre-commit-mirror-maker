@@ -4,6 +4,7 @@ import argparse
 import sys
 
 from pre_commit_mirror_maker.make_repo import make_repo
+from pre_commit_mirror_maker.make_repo import VERSION_LIST_FUNCTIONS
 from pre_commit_mirror_maker.util import from_utf8
 
 
@@ -18,7 +19,7 @@ def main(argv=None, make_repo_fn=None):
     )
     parser.add_argument(
         'language',
-        choices=('ruby',),
+        choices=VERSION_LIST_FUNCTIONS.keys(),
         help='Which language to use.',
     )
     parser.add_argument(
