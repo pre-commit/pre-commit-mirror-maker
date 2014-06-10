@@ -7,6 +7,7 @@ import pytest
 import re
 import subprocess
 
+from pre_commit_mirror_maker import five
 from pre_commit_mirror_maker.make_repo import _apply_version_and_commit
 from pre_commit_mirror_maker.make_repo import _ruby_get_package_version_output
 from pre_commit_mirror_maker.make_repo import cwd
@@ -14,7 +15,13 @@ from pre_commit_mirror_maker.make_repo import format_files_to_directory
 from pre_commit_mirror_maker.make_repo import get_output
 from pre_commit_mirror_maker.make_repo import node_get_package_versions
 from pre_commit_mirror_maker.make_repo import make_repo
+from pre_commit_mirror_maker.make_repo import python_get_package_versions
 from pre_commit_mirror_maker.make_repo import ruby_get_package_versions
+
+
+def assert_all_text(versions):
+    for version in versions:
+        assert type(version) is five.text
 
 
 def test_get_output():
@@ -35,6 +42,14 @@ def test_ruby_get_package_version_output():
 def test_node_get_package_version_output():
     ret = node_get_package_versions('jshint')
     assert ret
+    assert_all_text(ret)
+
+
+@pytest.mark.integration
+def test_python_get_package_version_output():
+    ret = python_get_package_versions('flake8')
+    assert ret
+    assert_all_text(ret)
 
 
 def test_ruby_get_package_versions():
@@ -196,6 +211,23 @@ def test_node_integration():
     # Should have made _some_ tags
     assert get_output('git', 'tag', '-l').strip()
     # Should have made _some_ commits
+    assert get_output('git', 'log', '--oneline').strip()
+
+    # TODO: test that the package is installable
+
+
+@pytest.mark.integration
+@pytest.mark.usefixtures('in_git_dir')
+def test_python_integration():
+    make_repo('.', 'python', 'flake8', r'\.py$', 'flake8')
+    # Our files should exist
+    assert os.path.exists('.version')
+    assert os.path.exists('hooks.yaml')
+    assert os.path.exists('setup.py')
+
+    # Should have _some_ tags
+    assert get_output('git', 'tag', '-l').strip()
+    # Should have _some_ commits
     assert get_output('git', 'log', '--oneline').strip()
 
     # TODO: test that the package is installable

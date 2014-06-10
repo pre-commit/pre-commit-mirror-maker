@@ -9,7 +9,9 @@ import re
 import simplejson
 import subprocess
 
+from pre_commit_mirror_maker import five
 from pre_commit_mirror_maker.util import from_utf8
+
 
 # pylint:disable=star-args,too-many-arguments
 
@@ -85,8 +87,15 @@ def node_get_package_versions(package_name):
     return output['versions']
 
 
+def python_get_package_versions(package_name):
+    client = five.xmlrpclib.ServerProxy('https://pypi.python.org/pypi')
+    versions = client.package_releases(package_name, True)
+    return list(reversed([from_utf8(version) for version in versions]))
+
+
 VERSION_LIST_FUNCTIONS = {
     'node': node_get_package_versions,
+    'python': python_get_package_versions,
     'ruby': ruby_get_package_versions,
 }
 
