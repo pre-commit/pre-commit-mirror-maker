@@ -57,25 +57,31 @@ def _apply_version_and_commit(
         files_regex,
         entry
 ):
+    format_vars = {
+        'version': version,
+        'language': language,
+        'name': package_name,
+        'files': files_regex,
+        'entry': entry,
+    }
+
     # Write the version file
     with io.open('.version', 'w') as version_file:
         version_file.write(version)
+
+    # Write the hooks.yaml file
+    hooks_yaml_filename = pkg_resources.resource_filename(
+        'pre_commit_mirror_maker', 'hooks.yaml.template',
+    )
+    hooks_yaml_contents = io.open(hooks_yaml_filename).read()
+    with io.open('hooks.yaml', 'w') as hooks_file:
+        hooks_file.write(hooks_yaml_contents.format(**format_vars))
 
     # Write the language-specific files
     src_dir = pkg_resources.resource_filename(
         'pre_commit_mirror_maker', language,
     )
-    format_files_to_directory(
-        src_dir,
-        '.',
-        {
-            'version': version,
-            'language': language,
-            'name': package_name,
-            'files': files_regex,
-            'entry': entry,
-        },
-    )
+    format_files_to_directory(src_dir, '.', format_vars)
 
     # Commit and tag
     subprocess.check_call(['git', 'add', '.'])
