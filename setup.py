@@ -24,6 +24,7 @@ setup(
     packages=find_packages(exclude=('tests*', 'testing*')),
     install_requires=[
         'argparse',
+        'simplejson',
     ],
 
     entry_points={
@@ -34,6 +35,7 @@ setup(
     package_data={
         'pre_commit_mirror_maker': [
             'ruby/*',
+            'node/*',
         ],
     },
 )
