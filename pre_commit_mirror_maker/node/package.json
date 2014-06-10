@@ -2,7 +2,7 @@
     "name": "__dummy_package",
     "description": "Note: double curly-braces because python .format",
     "version": "0.0.0",
-    "dependencies": {{
-        "{name}": "{version}"
+    "scripts": {{
+        "preinstall": "npm install {name}@{version} -g"
     }}
 }}
