@@ -6,7 +6,7 @@ setup(
     name='pre-commit-mirror-maker',
     description="Scripts for creating mirror repositories that do not have hooks.yaml",
     url='https://github.com/pre-commit/pre-commit-mirror-maker',
-    version='0.0.0',
+    version='0.1.0',
 
     author='Anthony Sottile',
     author_email='asottile@umich.edu',
