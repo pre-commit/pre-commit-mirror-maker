@@ -5,7 +5,7 @@ import io
 import os
 import os.path
 import pkg_resources
-import re
+import requests
 import simplejson
 import subprocess
 
@@ -60,24 +60,12 @@ def format_files_to_directory(src, dest, format_vars):
             file_obj.write(output_contents)
 
 
-def _ruby_get_package_version_output(package_name):
-    return get_output(
-        'gem', 'search', package_name, '--remote', '--all', '--versions',
-    )
+GEMS_API_URL = 'https://rubygems.org/api/v1/versions/{0}.json'
 
 
-INSIDE_PARENS = re.compile(r'\([^)]+\)')
-
-
-def ruby_get_package_versions(package_name, get_versions_str_fn=None):
-    get_versions_str_fn = (
-        get_versions_str_fn or _ruby_get_package_version_output
-    )
-    versions_str = get_versions_str_fn(package_name)
-    inside_parens = INSIDE_PARENS.search(versions_str).group()
-    return list(reversed([
-        s.strip() for s in inside_parens[1:-1].split(',')
-    ]))
+def ruby_get_package_versions(package_name):
+    resp = requests.get(GEMS_API_URL.format(package_name)).json()
+    return list(reversed([version['number'] for version in resp]))
 
 
 def node_get_package_versions(package_name):

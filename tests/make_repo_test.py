@@ -4,12 +4,10 @@ import io
 import mock
 import os.path
 import pytest
-import re
 import subprocess
 
 from pre_commit_mirror_maker import five
 from pre_commit_mirror_maker.make_repo import _apply_version_and_commit
-from pre_commit_mirror_maker.make_repo import _ruby_get_package_version_output
 from pre_commit_mirror_maker.make_repo import cwd
 from pre_commit_mirror_maker.make_repo import format_files_to_directory
 from pre_commit_mirror_maker.make_repo import get_output
@@ -31,11 +29,9 @@ def test_get_output():
 
 @pytest.mark.integration
 def test_ruby_get_package_version_output():
-    ret = _ruby_get_package_version_output('scss-lint')
-    # We expect the output to look something like this:
-    # 'scss-lint (1.2.3, 1.1.0, ...)\n'
-    ret_re = re.compile(r'^scss-lint \(([0-9\.]+, )+[0-9\.]+\)\n$')
-    assert ret_re.match(ret)
+    ret = ruby_get_package_versions('scss-lint')
+    assert ret
+    assert_all_text(ret)
 
 
 @pytest.mark.integration
@@ -50,18 +46,6 @@ def test_python_get_package_version_output():
     ret = python_get_package_versions('flake8')
     assert ret
     assert_all_text(ret)
-
-
-def test_ruby_get_package_versions():
-    def fake_get_versions_str(_):
-        return 'scss-lint (0.24.1, 0.24.0, 0.23.1)\n'
-
-    ret = ruby_get_package_versions(
-        'scss-lint',
-        get_versions_str_fn=fake_get_versions_str,
-    )
-    # Should be sorted in ascending order
-    assert ret == ['0.23.1', '0.24.0', '0.24.1']
 
 
 def test_format_files_to_directory(tmpdir):
