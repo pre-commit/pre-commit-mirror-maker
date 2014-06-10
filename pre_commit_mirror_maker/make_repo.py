@@ -5,22 +5,12 @@ import io
 import os
 import os.path
 import pkg_resources
-import requests
-import simplejson
 import subprocess
 
-from pre_commit_mirror_maker import five
-from pre_commit_mirror_maker.util import from_utf8
+from pre_commit_mirror_maker.languages import VERSION_LIST_FUNCTIONS
 
 
 # pylint:disable=star-args,too-many-arguments
-
-
-def get_output(*cmd):
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-    stdout, stderr = proc.communicate()
-    assert not proc.returncode, (proc.returncode, stdout, stderr)
-    return from_utf8(stdout)
 
 
 @contextlib.contextmanager
@@ -60,34 +50,6 @@ def format_files_to_directory(src, dest, format_vars):
             file_obj.write(output_contents)
 
 
-GEMS_API_URL = 'https://rubygems.org/api/v1/versions/{0}.json'
-
-
-def ruby_get_package_versions(package_name):
-    resp = requests.get(GEMS_API_URL.format(package_name)).json()
-    return list(reversed([version['number'] for version in resp]))
-
-
-def node_get_package_versions(package_name):
-    output = simplejson.loads(get_output(
-        'npm', 'view', package_name, '--json',
-    ))
-    return output['versions']
-
-
-def python_get_package_versions(package_name):
-    client = five.xmlrpclib.ServerProxy('https://pypi.python.org/pypi')
-    versions = client.package_releases(package_name, True)
-    return list(reversed([from_utf8(version) for version in versions]))
-
-
-VERSION_LIST_FUNCTIONS = {
-    'node': node_get_package_versions,
-    'python': python_get_package_versions,
-    'ruby': ruby_get_package_versions,
-}
-
-
 def _apply_version_and_commit(
         version,
         language,
@@ -95,25 +57,31 @@ def _apply_version_and_commit(
         files_regex,
         entry
 ):
+    format_vars = {
+        'version': version,
+        'language': language,
+        'name': package_name,
+        'files': files_regex,
+        'entry': entry,
+    }
+
     # Write the version file
     with io.open('.version', 'w') as version_file:
         version_file.write(version)
+
+    # Write the hooks.yaml file
+    hooks_yaml_filename = pkg_resources.resource_filename(
+        'pre_commit_mirror_maker', 'hooks.yaml.template',
+    )
+    hooks_yaml_contents = io.open(hooks_yaml_filename).read()
+    with io.open('hooks.yaml', 'w') as hooks_file:
+        hooks_file.write(hooks_yaml_contents.format(**format_vars))
 
     # Write the language-specific files
     src_dir = pkg_resources.resource_filename(
         'pre_commit_mirror_maker', language,
     )
-    format_files_to_directory(
-        src_dir,
-        '.',
-        {
-            'version': version,
-            'language': language,
-            'name': package_name,
-            'files': files_regex,
-            'entry': entry,
-        },
-    )
+    format_files_to_directory(src_dir, '.', format_vars)
 
     # Commit and tag
     subprocess.check_call(['git', 'add', '.'])

@@ -35,6 +35,7 @@ setup(
     },
     package_data={
         'pre_commit_mirror_maker': [
+            'hooks.yaml.template',
             'node/*',
             'python/*',
             'ruby/*',

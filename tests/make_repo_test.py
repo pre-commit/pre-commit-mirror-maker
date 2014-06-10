@@ -6,46 +6,11 @@ import os.path
 import pytest
 import subprocess
 
-from pre_commit_mirror_maker import five
 from pre_commit_mirror_maker.make_repo import _apply_version_and_commit
 from pre_commit_mirror_maker.make_repo import cwd
 from pre_commit_mirror_maker.make_repo import format_files_to_directory
-from pre_commit_mirror_maker.make_repo import get_output
-from pre_commit_mirror_maker.make_repo import node_get_package_versions
 from pre_commit_mirror_maker.make_repo import make_repo
-from pre_commit_mirror_maker.make_repo import python_get_package_versions
-from pre_commit_mirror_maker.make_repo import ruby_get_package_versions
-
-
-def assert_all_text(versions):
-    for version in versions:
-        assert type(version) is five.text
-
-
-def test_get_output():
-    output = get_output('echo', 'hi')
-    assert output == 'hi\n'
-
-
-@pytest.mark.integration
-def test_ruby_get_package_version_output():
-    ret = ruby_get_package_versions('scss-lint')
-    assert ret
-    assert_all_text(ret)
-
-
-@pytest.mark.integration
-def test_node_get_package_version_output():
-    ret = node_get_package_versions('jshint')
-    assert ret
-    assert_all_text(ret)
-
-
-@pytest.mark.integration
-def test_python_get_package_version_output():
-    ret = python_get_package_versions('flake8')
-    assert ret
-    assert_all_text(ret)
+from pre_commit_mirror_maker.util import get_output
 
 
 def test_format_files_to_directory(tmpdir):
