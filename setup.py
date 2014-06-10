@@ -24,6 +24,7 @@ setup(
     packages=find_packages(exclude=('tests*', 'testing*')),
     install_requires=[
         'argparse',
+        'requests',
         'simplejson',
     ],
 
@@ -34,8 +35,9 @@ setup(
     },
     package_data={
         'pre_commit_mirror_maker': [
-            'ruby/*',
             'node/*',
+            'python/*',
+            'ruby/*',
         ],
     },
 )
