@@ -40,6 +40,26 @@ def test_format_files_to_directory(tmpdir):
     assert _read_file_in_dest('file3.txt') == 'foo bar derp'
 
 
+def test_format_files_to_directory_skips_pyc(tmpdir):
+    src_dir = os.path.join(tmpdir.strpath, 'src')
+    dest_dir = os.path.join(tmpdir.strpath, 'dest')
+    os.mkdir(src_dir)
+    os.mkdir(dest_dir)
+
+    # Create some files in src
+    def _write_file_in_src(filename, contents):
+        with io.open(os.path.join(src_dir, filename), 'w') as file_obj:
+            file_obj.write(contents)
+
+    _write_file_in_src('setup.py', '# Setup.py')
+    _write_file_in_src('setup.pyc', "# Setup.pyc, don't copy me!")
+
+    format_files_to_directory(src_dir, dest_dir, {})
+
+    assert os.path.exists(os.path.join(dest_dir, 'setup.py'))
+    assert not os.path.exists(os.path.join(dest_dir, 'setup.pyc'))
+
+
 def test_cwd(tmpdir):
     original_cwd = os.getcwd()
     with cwd(tmpdir.strpath):
