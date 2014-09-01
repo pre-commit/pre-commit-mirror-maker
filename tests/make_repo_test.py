@@ -60,6 +60,17 @@ def test_format_files_to_directory_skips_pyc(tmpdir):
     assert not os.path.exists(os.path.join(dest_dir, 'setup.pyc'))
 
 
+def test_skips_directories(tmpdir):
+    src_dir = os.path.join(tmpdir.strpath, 'src')
+    dest_dir = os.path.join(tmpdir.strpath, 'dest')
+    os.mkdir(src_dir)
+    os.mkdir(dest_dir)
+
+    os.mkdir(os.path.join(src_dir, '__pycache__'))
+    format_files_to_directory(src_dir, dest_dir, {})
+    assert not os.path.exists(os.path.join(dest_dir, '__pycache__'))
+
+
 def test_cwd(tmpdir):
     original_cwd = os.getcwd()
     with cwd(tmpdir.strpath):
