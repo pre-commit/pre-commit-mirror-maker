@@ -13,6 +13,9 @@ from pre_commit_mirror_maker.languages import VERSION_LIST_FUNCTIONS
 # pylint:disable=star-args,too-many-arguments
 
 
+EXCLUDED_EXTENSIONS = frozenset(('.pyc',))
+
+
 @contextlib.contextmanager
 def cwd(directory):
     original_cwd = os.getcwd()
@@ -44,6 +47,11 @@ def format_files_to_directory(src, dest, format_vars):
     assert os.path.exists(dest)
     # Only at the root.  Could be made more complicated and recursive later
     for filename in os.listdir(src):
+        if any(
+                filename.endswith(extension)
+                for extension in EXCLUDED_EXTENSIONS
+        ):
+            continue
         contents = io.open(os.path.join(src, filename)).read()
         output_contents = contents.format(**format_vars)
         with io.open(os.path.join(dest, filename), 'w') as file_obj:
