@@ -52,6 +52,9 @@ def format_files_to_directory(src, dest, format_vars):
                 for extension in EXCLUDED_EXTENSIONS
         ):
             continue
+        # Flat directory structure
+        if not os.path.isfile(os.path.join(src, filename)):
+            continue
         contents = io.open(os.path.join(src, filename)).read()
         output_contents = contents.format(**format_vars)
         with io.open(os.path.join(dest, filename), 'w') as file_obj:
