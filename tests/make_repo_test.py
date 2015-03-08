@@ -1,10 +1,11 @@
 from __future__ import unicode_literals
 
 import io
-import mock
 import os.path
-import pytest
 import subprocess
+
+import mock
+import pytest
 
 from pre_commit_mirror_maker.make_repo import _apply_version_and_commit
 from pre_commit_mirror_maker.make_repo import cwd

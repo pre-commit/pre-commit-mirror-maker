@@ -4,8 +4,9 @@ import contextlib
 import io
 import os
 import os.path
-import pkg_resources
 import subprocess
+
+import pkg_resources
 
 from pre_commit_mirror_maker.languages import VERSION_LIST_FUNCTIONS
 
