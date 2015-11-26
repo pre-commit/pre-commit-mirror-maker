@@ -14,7 +14,7 @@ def test_main_passes_args():
         make_repo_fn=mock_make_repo,
     )
     assert ret == 0
-    assert mock_make_repo.called_once_with(
+    mock_make_repo.assert_called_once_with(
         '.', 'ruby', 'scss-lint', r'\.scss$', 'scss-lint-entry',
     )
 
@@ -26,6 +26,6 @@ def test_main_defaults_entry_to_package_name():
         make_repo_fn=mock_make_repo,
     )
     assert ret == 0
-    assert mock_make_repo.called_once_with(
-        '.', 'ruby', 'scss-lint', r'\.scss$' 'scss-lint-entry',
+    mock_make_repo.assert_called_once_with(
+        '.', 'ruby', 'scss-lint', r'\.scss$', 'scss-lint',
     )
