@@ -1,7 +1,6 @@
 from __future__ import unicode_literals
 
 import argparse
-import sys
 
 from pre_commit_mirror_maker.make_repo import make_repo
 from pre_commit_mirror_maker.make_repo import VERSION_LIST_FUNCTIONS
@@ -9,7 +8,6 @@ from pre_commit_mirror_maker.util import from_utf8
 
 
 def main(argv=None, make_repo_fn=None):
-    argv = argv if argv is not None else sys.argv[1:]
     make_repo_fn = make_repo_fn or make_repo
 
     parser = argparse.ArgumentParser()
