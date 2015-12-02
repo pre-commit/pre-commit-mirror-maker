@@ -5,6 +5,7 @@ import argparse
 from pre_commit_mirror_maker.make_repo import make_repo
 from pre_commit_mirror_maker.make_repo import VERSION_LIST_FUNCTIONS
 from pre_commit_mirror_maker.util import from_utf8
+from pre_commit_mirror_maker.util import split_by_commas
 
 
 def main(argv=None, make_repo_fn=None):
@@ -32,19 +33,31 @@ def main(argv=None, make_repo_fn=None):
         '--entry',
         help='Entry point, defaults to the package name.',
     )
+    parser.add_argument(
+        '--args',
+        help=(
+            'Comma separated arguments for the hook.  Escape commas in args '
+            'with a backslash (\\).  '
+            r"For example: --args='-i,--ignore=E265\,E309\,E501' would give "
+            'you [-i, --ignore=E265,E309,E501]'
+        ),
+    )
     args = parser.parse_args(argv)
 
     repo_path = from_utf8(args.repo_path)
     language = from_utf8(args.language)
     package_name = from_utf8(args.package_name)
     files_regex = from_utf8(args.files_regex)
+    hook_args = split_by_commas(from_utf8(args.args))
 
     if args.entry is None:
         entry = package_name
     else:
         entry = from_utf8(args.entry)
 
-    return make_repo_fn(repo_path, language, package_name, files_regex, entry)
+    return make_repo_fn(
+        repo_path, language, package_name, files_regex, entry, hook_args,
+    )
 
 
 if __name__ == '__main__':

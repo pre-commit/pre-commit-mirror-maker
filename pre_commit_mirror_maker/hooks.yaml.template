@@ -3,3 +3,4 @@
     entry: {entry}
     language: {language}
     files: {files}
+    args: {args}

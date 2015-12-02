@@ -6,6 +6,7 @@ import subprocess
 
 import mock
 import pytest
+import yaml
 
 from pre_commit_mirror_maker.make_repo import _apply_version_and_commit
 from pre_commit_mirror_maker.make_repo import cwd
@@ -90,7 +91,7 @@ def in_git_dir(tmpdir):
 @pytest.mark.usefixtures('in_git_dir')
 def test_apply_version_and_commit():
     _apply_version_and_commit(
-        '0.24.1', 'ruby', 'scss-lint', r'\.scss$', 'scss-lint',
+        '0.24.1', 'ruby', 'scss-lint', r'\.scss$', 'scss-lint', (),
     )
 
     # Assert that our things got copied over
@@ -108,6 +109,21 @@ def test_apply_version_and_commit():
     ]
 
 
+@pytest.mark.usefixtures('in_git_dir')
+def test_arguments():
+    _apply_version_and_commit(
+        '0.6.2', 'python', 'yapf', r'\.py$', 'yapf', ('-i',),
+    )
+    assert yaml.safe_load(io.open('hooks.yaml').read()) == [{
+        'id': 'yapf',
+        'name': 'yapf',
+        'entry': 'yapf',
+        'language': 'python',
+        'files': r'\.py$',
+        'args': ['-i'],
+    }]
+
+
 def returns_some_versions(_):
     return ['0.23.1', '0.24.0', '0.24.1']
 
@@ -115,7 +131,7 @@ def returns_some_versions(_):
 @pytest.mark.usefixtures('in_git_dir')
 def test_make_repo_starting_empty():
     make_repo(
-        '.', 'ruby', 'scss-lint', r'\.scss$', 'scss-lint',
+        '.', 'ruby', 'scss-lint', r'\.scss$', 'scss-lint', (),
         version_list_fn_map={'ruby': returns_some_versions},
     )
 
@@ -147,7 +163,7 @@ def test_make_repo_starting_at_version():
         version_file.write('0.23.1')
 
     make_repo(
-        '.', 'ruby', 'scss-lint', r'\.scss$', 'scss-lint',
+        '.', 'ruby', 'scss-lint', r'\.scss$', 'scss-lint', (),
         version_list_fn_map={'ruby': returns_some_versions},
     )
 
@@ -166,7 +182,7 @@ def test_make_repo_starting_at_version():
 @pytest.mark.integration
 @pytest.mark.usefixtures('in_git_dir')
 def test_ruby_integration():
-    make_repo('.', 'ruby', 'scss-lint', r'\.scss$', 'scss-lint')
+    make_repo('.', 'ruby', 'scss-lint', r'\.scss$', 'scss-lint', ())
     # Our files should exist
     assert os.path.exists('.version')
     assert os.path.exists('hooks.yaml')
@@ -183,7 +199,7 @@ def test_ruby_integration():
 @pytest.mark.integration
 @pytest.mark.usefixtures('in_git_dir')
 def test_node_integration():
-    make_repo('.', 'node', 'jshint', r'\.js$', 'jshint')
+    make_repo('.', 'node', 'jshint', r'\.js$', 'jshint', ())
     # Our files should exist
     assert os.path.exists('.version')
     assert os.path.exists('hooks.yaml')
@@ -200,7 +216,7 @@ def test_node_integration():
 @pytest.mark.integration
 @pytest.mark.usefixtures('in_git_dir')
 def test_python_integration():
-    make_repo('.', 'python', 'flake8', r'\.py$', 'flake8')
+    make_repo('.', 'python', 'flake8', r'\.py$', 'flake8', ())
     # Our files should exist
     assert os.path.exists('.version')
     assert os.path.exists('hooks.yaml')

@@ -15,7 +15,7 @@ def test_main_passes_args():
     )
     assert ret == 0
     mock_make_repo.assert_called_once_with(
-        '.', 'ruby', 'scss-lint', r'\.scss$', 'scss-lint-entry',
+        '.', 'ruby', 'scss-lint', r'\.scss$', 'scss-lint-entry', (),
     )
 
 
@@ -27,5 +27,20 @@ def test_main_defaults_entry_to_package_name():
     )
     assert ret == 0
     mock_make_repo.assert_called_once_with(
-        '.', 'ruby', 'scss-lint', r'\.scss$', 'scss-lint',
+        '.', 'ruby', 'scss-lint', r'\.scss$', 'scss-lint', (),
+    )
+
+
+def test_main_with_args():
+    mock_make_repo = mock.Mock(return_value=0)
+    main(
+        argv=[
+            '.', 'python', 'yapf', r'\.py$',
+            r'--args=-i,--ignore=E265\,E309\,E501',
+        ],
+        make_repo_fn=mock_make_repo,
+    )
+    mock_make_repo.assert_called_once_with(
+        '.', 'python', 'yapf', r'\.py$', 'yapf',
+        ('-i', '--ignore=E265,E309,E501'),
     )

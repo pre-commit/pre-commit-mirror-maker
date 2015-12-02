@@ -7,6 +7,7 @@ import os.path
 import subprocess
 
 import pkg_resources
+import yaml
 
 from pre_commit_mirror_maker.languages import VERSION_LIST_FUNCTIONS
 
@@ -67,7 +68,8 @@ def _apply_version_and_commit(
         language,
         package_name,
         files_regex,
-        entry
+        entry,
+        args,
 ):
     format_vars = {
         'version': version,
@@ -75,6 +77,7 @@ def _apply_version_and_commit(
         'name': package_name,
         'files': files_regex,
         'entry': entry,
+        'args': yaml.safe_dump(args),
     }
 
     # Write the version file
@@ -109,6 +112,7 @@ def make_repo(
         package_name,
         files_regex,
         entry,
+        args,
         version_list_fn_map=None,
 ):
     version_list_fn_map = version_list_fn_map or VERSION_LIST_FUNCTIONS
@@ -131,4 +135,5 @@ def make_repo(
                 package_name,
                 files_regex,
                 entry,
+                args,
             )
