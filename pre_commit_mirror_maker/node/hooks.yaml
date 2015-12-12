@@ -1,0 +1,9 @@
+-   id: {entry}
+    name: {name}
+    entry: {entry}
+    language: {language}
+    files: {files}
+    args: {args}
+    # Use additional_dependencies to install the actual node package
+    additional_dependencies: ['{name}@{version}']
+    minimum_pre_commit_version: 0.7.0

@@ -99,11 +99,11 @@ def _apply_version_and_commit(
     format_files_to_directory(src_dir, '.', format_vars)
 
     # Commit and tag
-    subprocess.check_call(['git', 'add', '.'])
-    subprocess.check_call([
+    subprocess.check_call(('git', 'add', '.'))
+    subprocess.check_call((
         'git', 'commit', '-m', 'Mirror: {0}'.format(version)
-    ])
-    subprocess.check_call(['git', 'tag', 'v{0}'.format(version)])
+    ))
+    subprocess.check_call(('git', 'tag', 'v{0}'.format(version)))
 
 
 def make_repo(
