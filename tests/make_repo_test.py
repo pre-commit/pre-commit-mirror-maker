@@ -99,7 +99,7 @@ def test_apply_version_and_commit():
     assert os.path.exists('__fake_gem.gemspec')
     # Assert that we set the version file correctly
     assert os.path.exists('.version')
-    assert io.open('.version').read() == '0.24.1'
+    assert io.open('.version').read().strip() == '0.24.1'
 
     # Assert some things about the gits
     assert get_output('git', 'status', '-s').strip() == ''
@@ -140,7 +140,7 @@ def test_make_repo_starting_empty():
     assert os.path.exists('__fake_gem.gemspec')
     # Assert that we set the version fiel correctly
     assert os.path.exists('.version')
-    assert io.open('.version').read() == '0.24.1'
+    assert io.open('.version').read().strip() == '0.24.1'
 
     # Assert some things about hte gits
     assert get_output('git', 'status', '-s').strip() == ''

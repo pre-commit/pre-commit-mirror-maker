@@ -80,23 +80,12 @@ def _apply_version_and_commit(
         'args': yaml.safe_dump(args),
     }
 
-    # Write the version file
-    with io.open('.version', 'w') as version_file:
-        version_file.write(version)
-
-    # Write the hooks.yaml file
-    hooks_yaml_filename = pkg_resources.resource_filename(
-        'pre_commit_mirror_maker', 'hooks.yaml.template',
-    )
-    hooks_yaml_contents = io.open(hooks_yaml_filename).read()
-    with io.open('hooks.yaml', 'w') as hooks_file:
-        hooks_file.write(hooks_yaml_contents.format(**format_vars))
-
-    # Write the language-specific files
-    src_dir = pkg_resources.resource_filename(
-        'pre_commit_mirror_maker', language,
-    )
-    format_files_to_directory(src_dir, '.', format_vars)
+    # 'all' is responsible for writing the version / hooks.yaml file
+    for resource_dir in ('all', language):
+        src_dir = pkg_resources.resource_filename(
+            'pre_commit_mirror_maker', resource_dir,
+        )
+        format_files_to_directory(src_dir, '.', format_vars)
 
     # Commit and tag
     subprocess.check_call(('git', 'add', '.'))
@@ -122,7 +111,7 @@ def make_repo(
     with cwd(repo):
         package_versions = version_list_fn_map[language](package_name)
         if os.path.exists('.version'):
-            previous_version = io.open('.version').read()
+            previous_version = io.open('.version').read().strip()
             previous_version_index = package_versions.index(previous_version)
             versions_to_apply = package_versions[previous_version_index + 1:]
         else:
