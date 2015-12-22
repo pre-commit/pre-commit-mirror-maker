@@ -39,6 +39,7 @@ setup(
         'pre_commit_mirror_maker': [
             'all/.version',
             'all/*',
+            'node/.npmignore',
             'node/*',
             'python/*',
             'ruby/*',
