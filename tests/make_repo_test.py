@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 import io
 import os.path
 import subprocess
+import sys
 
 import mock
 import pytest
@@ -226,5 +227,8 @@ def test_python_integration():
     assert get_output('git', 'tag', '-l').strip()
     # Should have _some_ commits
     assert get_output('git', 'log', '--oneline').strip()
+
+    # To make sure the name is valid
+    subprocess.check_call((sys.executable, 'setup.py', 'egg_info'))
 
     # TODO: test that the package is installable
