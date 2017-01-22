@@ -36,9 +36,10 @@ setup(
     },
     package_data={
         'pre_commit_mirror_maker': [
+            'all/.pre-commit-hooks.yaml',
             'all/.version',
-            'all/*',
             'node/.npmignore',
+            'node/.pre-commit-hooks.yaml',
             'node/*',
             'python/*',
             'ruby/*',
