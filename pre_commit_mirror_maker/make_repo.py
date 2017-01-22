@@ -2,8 +2,8 @@ from __future__ import unicode_literals
 
 import contextlib
 import io
-import os
 import os.path
+import shutil
 import subprocess
 
 import pkg_resources
@@ -83,6 +83,10 @@ def _apply_version_and_commit(
             'pre_commit_mirror_maker', resource_dir,
         )
         format_files_to_directory(src_dir, '.', format_vars)
+
+    # https://github.com/pre-commit/pre-commit/pull/470 moved the default
+    # file to .pre-commit-hooks.yaml -- populate the legacy file as well
+    shutil.copy('.pre-commit-hooks.yaml', 'hooks.yaml')
 
     # Commit and tag
     subprocess.check_call(('git', 'add', '.'))

@@ -96,6 +96,7 @@ def test_apply_version_and_commit():
     )
 
     # Assert that our things got copied over
+    assert os.path.exists('.pre-commit-hooks.yaml')
     assert os.path.exists('hooks.yaml')
     assert os.path.exists('__fake_gem.gemspec')
     # Assert that we set the version file correctly
@@ -115,7 +116,7 @@ def test_arguments():
     _apply_version_and_commit(
         '0.6.2', 'python', 'yapf', r'\.py$', 'yapf', ('-i',),
     )
-    assert yaml.safe_load(io.open('hooks.yaml').read()) == [{
+    assert yaml.safe_load(io.open('.pre-commit-hooks.yaml').read()) == [{
         'id': 'yapf',
         'name': 'yapf',
         'entry': 'yapf',
@@ -137,6 +138,7 @@ def test_make_repo_starting_empty():
     )
 
     # Assert that our things got copied over
+    assert os.path.exists('.pre-commit-hooks.yaml')
     assert os.path.exists('hooks.yaml')
     assert os.path.exists('__fake_gem.gemspec')
     # Assert that we set the version fiel correctly
@@ -186,6 +188,7 @@ def test_ruby_integration():
     make_repo('.', 'ruby', 'scss-lint', r'\.scss$', 'scss-lint', ())
     # Our files should exist
     assert os.path.exists('.version')
+    assert os.path.exists('.pre-commit-hooks.yaml')
     assert os.path.exists('hooks.yaml')
     assert os.path.exists('__fake_gem.gemspec')
 
@@ -203,6 +206,7 @@ def test_node_integration():
     make_repo('.', 'node', 'jshint', r'\.js$', 'jshint', ())
     # Our files should exist
     assert os.path.exists('.version')
+    assert os.path.exists('.pre-commit-hooks.yaml')
     assert os.path.exists('hooks.yaml')
     assert os.path.exists('package.json')
 
@@ -220,6 +224,7 @@ def test_python_integration():
     make_repo('.', 'python', 'flake8', r'\.py$', 'flake8', ())
     # Our files should exist
     assert os.path.exists('.version')
+    assert os.path.exists('.pre-commit-hooks.yaml')
     assert os.path.exists('hooks.yaml')
     assert os.path.exists('setup.py')
 
