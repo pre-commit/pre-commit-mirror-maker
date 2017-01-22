@@ -1,5 +1,3 @@
-# pylint:disable=import-error,undefined-variable,unused-import
-
 PY2 = str is bytes
 PY3 = str is not bytes
 

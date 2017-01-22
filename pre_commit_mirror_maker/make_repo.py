@@ -12,10 +12,7 @@ import yaml
 from pre_commit_mirror_maker.languages import VERSION_LIST_FUNCTIONS
 
 
-# pylint:disable=star-args,too-many-arguments
-
-
-EXCLUDED_EXTENSIONS = frozenset(('.pyc',))
+EXCLUDED_EXTENSIONS = frozenset({'.pyc'})
 
 
 @contextlib.contextmanager
@@ -90,9 +87,9 @@ def _apply_version_and_commit(
     # Commit and tag
     subprocess.check_call(('git', 'add', '.'))
     subprocess.check_call((
-        'git', 'commit', '-m', 'Mirror: {0}'.format(version)
+        'git', 'commit', '-m', 'Mirror: {}'.format(version)
     ))
-    subprocess.check_call(('git', 'tag', 'v{0}'.format(version)))
+    subprocess.check_call(('git', 'tag', 'v{}'.format(version)))
 
 
 def make_repo(

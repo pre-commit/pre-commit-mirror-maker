@@ -1,20 +1,20 @@
 language: python
-env: # These should match the tox env list
-    - TOXENV=py26
-    - TOXENV=py27
-    - TOXENV=py33
-    - TOXENV=py34
-    - TOXENV=pypy
-    - TOXENV=pypy3
-install: pip install coveralls tox --use-mirrors
+sudo: false
+matrix:
+    include:
+        -   env: TOXENV=py27
+        -   env: TOXENV=py35
+            python: 3.5
+        -   env: TOXENV=py36
+            python: 3.6
+        -   env: TOXENV=pypy
+install: pip install coveralls tox
 script: tox
 # Special snowflake.  Our tests depend on making real commits.
 before_install:
   - git config --global user.name "Travis CI"
   - git config --global user.email "user@example.com"
-after_success:
-    - coveralls
-sudo: false
+after_success: coveralls
 cache:
     directories:
         - $HOME/.cache/pip
