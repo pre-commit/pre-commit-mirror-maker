@@ -1,14 +1,15 @@
 from __future__ import unicode_literals
 
+import json
+
 import requests
-import simplejson
 
 from pre_commit_mirror_maker import five
 from pre_commit_mirror_maker.util import from_utf8
 from pre_commit_mirror_maker.util import get_output
 
 
-GEMS_API_URL = 'https://rubygems.org/api/v1/versions/{0}.json'
+GEMS_API_URL = 'https://rubygems.org/api/v1/versions/{}.json'
 
 
 def ruby_get_package_versions(package_name):
@@ -17,9 +18,7 @@ def ruby_get_package_versions(package_name):
 
 
 def node_get_package_versions(package_name):
-    output = simplejson.loads(get_output(
-        'npm', 'view', package_name, '--json',
-    ))
+    output = json.loads(get_output('npm', 'view', package_name, '--json'))
     return output['versions']
 
 
