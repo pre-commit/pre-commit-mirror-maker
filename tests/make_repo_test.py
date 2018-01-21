@@ -81,7 +81,7 @@ def test_cwd(tmpdir):
     assert os.getcwd() == original_cwd
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def in_git_dir(tmpdir):
     git_path = os.path.join(tmpdir.strpath, 'gits')
     subprocess.check_call(['git', 'init', git_path])
