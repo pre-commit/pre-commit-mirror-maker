@@ -1,31 +1,25 @@
-from __future__ import unicode_literals
-
 import json
-
-import requests
-
-from pre_commit_mirror_maker import five
-from pre_commit_mirror_maker.util import from_utf8
-from pre_commit_mirror_maker.util import get_output
-
-
-GEMS_API_URL = 'https://rubygems.org/api/v1/versions/{}.json'
+import subprocess
+import urllib.request
+import xmlrpc.client
 
 
 def ruby_get_package_versions(package_name):
-    resp = requests.get(GEMS_API_URL.format(package_name)).json()
+    url = f'https://rubygems.org/api/v1/versions/{package_name}.json'
+    resp = json.load(urllib.request.urlopen(url))
     return list(reversed([version['number'] for version in resp]))
 
 
 def node_get_package_versions(package_name):
-    output = json.loads(get_output('npm', 'view', package_name, '--json'))
+    cmd = ('npm', 'view', package_name, '--json')
+    output = json.loads(subprocess.check_output(cmd))
     return output['versions']
 
 
 def python_get_package_versions(package_name):
-    client = five.xmlrpclib.ServerProxy('https://pypi.python.org/pypi')
+    client = xmlrpc.client.ServerProxy('https://pypi.org/pypi')
     versions = client.package_releases(package_name, True)
-    return list(reversed([from_utf8(version) for version in versions]))
+    return list(reversed(versions))
 
 
 VERSION_LIST_FUNCTIONS = {

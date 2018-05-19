@@ -1,11 +1,8 @@
-from __future__ import unicode_literals
-
-import io
 import os.path
 import subprocess
 import sys
+from unittest import mock
 
-import mock
 import pytest
 import yaml
 
@@ -13,65 +10,47 @@ from pre_commit_mirror_maker.make_repo import _apply_version_and_commit
 from pre_commit_mirror_maker.make_repo import cwd
 from pre_commit_mirror_maker.make_repo import format_files_to_directory
 from pre_commit_mirror_maker.make_repo import make_repo
-from pre_commit_mirror_maker.util import get_output
+
+
+def _cmd(*cmd):
+    return subprocess.check_output(cmd).strip().decode()
 
 
 def test_format_files_to_directory(tmpdir):
-    src_dir = os.path.join(tmpdir.strpath, 'src')
-    dest_dir = os.path.join(tmpdir.strpath, 'dest')
-    os.mkdir(src_dir)
-    os.mkdir(dest_dir)
+    src = tmpdir.join('src').ensure_dir()
+    dest = tmpdir.join('dest').ensure_dir()
 
-    # Create some files in src
-    def _write_file_in_src(filename, contents):
-        with io.open(os.path.join(src_dir, filename), 'w') as file_obj:
-            file_obj.write(contents)
+    src.join('file1.txt').write('{foo} bar {baz}')
+    src.join('file2.txt').write('hello world')
+    src.join('file3.txt').write('foo bar {baz}')
 
-    _write_file_in_src('file1.txt', '{foo} bar {baz}')
-    _write_file_in_src('file2.txt', 'hello world')
-    _write_file_in_src('file3.txt', 'foo bar {baz}')
+    format_files_to_directory(src, dest, {'foo': 'herp', 'baz': 'derp'})
 
-    format_files_to_directory(
-        src_dir, dest_dir, {'foo': 'herp', 'baz': 'derp'},
-    )
-
-    def _read_file_in_dest(filename):
-        return io.open(os.path.join(dest_dir, filename)).read()
-
-    assert _read_file_in_dest('file1.txt') == 'herp bar derp'
-    assert _read_file_in_dest('file2.txt') == 'hello world'
-    assert _read_file_in_dest('file3.txt') == 'foo bar derp'
+    assert dest.join('file1.txt').read() == 'herp bar derp'
+    assert dest.join('file2.txt').read() == 'hello world'
+    assert dest.join('file3.txt').read() == 'foo bar derp'
 
 
 def test_format_files_to_directory_skips_pyc(tmpdir):
-    src_dir = os.path.join(tmpdir.strpath, 'src')
-    dest_dir = os.path.join(tmpdir.strpath, 'dest')
-    os.mkdir(src_dir)
-    os.mkdir(dest_dir)
+    src = tmpdir.join('src').ensure_dir()
+    dest = tmpdir.join('dest').ensure_dir()
 
-    # Create some files in src
-    def _write_file_in_src(filename, contents):
-        with io.open(os.path.join(src_dir, filename), 'w') as file_obj:
-            file_obj.write(contents)
+    src.join('setup.py').write('# Setup.py')
+    src.join('setup.pyc').write("# Setup.pyc, don't copy me!")
 
-    _write_file_in_src('setup.py', '# Setup.py')
-    _write_file_in_src('setup.pyc', "# Setup.pyc, don't copy me!")
+    format_files_to_directory(src, dest, {})
 
-    format_files_to_directory(src_dir, dest_dir, {})
-
-    assert os.path.exists(os.path.join(dest_dir, 'setup.py'))
-    assert not os.path.exists(os.path.join(dest_dir, 'setup.pyc'))
+    assert dest.join('setup.py').exists()
+    assert not dest.join('setup.pyc').exists()
 
 
 def test_skips_directories(tmpdir):
-    src_dir = os.path.join(tmpdir.strpath, 'src')
-    dest_dir = os.path.join(tmpdir.strpath, 'dest')
-    os.mkdir(src_dir)
-    os.mkdir(dest_dir)
+    src = tmpdir.join('src').ensure_dir()
+    dest = tmpdir.join('dest').ensure_dir()
 
-    os.mkdir(os.path.join(src_dir, '__pycache__'))
-    format_files_to_directory(src_dir, dest_dir, {})
-    assert not os.path.exists(os.path.join(dest_dir, '__pycache__'))
+    src.join('__pycache__').ensure_dir()
+    format_files_to_directory(src, dest, {})
+    assert not dest.join('__pycache__').exists()
 
 
 def test_cwd(tmpdir):
@@ -83,40 +62,36 @@ def test_cwd(tmpdir):
 
 @pytest.fixture
 def in_git_dir(tmpdir):
-    git_path = os.path.join(tmpdir.strpath, 'gits')
-    subprocess.check_call(['git', 'init', git_path])
-    with cwd(git_path):
-        yield
+    git_path = tmpdir.join('gits')
+    subprocess.check_call(('git', 'init', git_path))
+    with git_path.as_cwd():
+        yield git_path
 
 
-@pytest.mark.usefixtures('in_git_dir')
-def test_apply_version_and_commit():
+def test_apply_version_and_commit(in_git_dir):
     _apply_version_and_commit(
         '0.24.1', 'ruby', 'scss-lint', r'\.scss$', 'scss-lint', (),
     )
 
     # Assert that our things got copied over
-    assert os.path.exists('.pre-commit-hooks.yaml')
-    assert os.path.exists('hooks.yaml')
-    assert os.path.exists('__fake_gem.gemspec')
+    assert in_git_dir.join('.pre-commit-hooks.yaml').exists()
+    assert in_git_dir.join('hooks.yaml').exists()
+    assert in_git_dir.join('__fake_gem.gemspec').exists()
     # Assert that we set the version file correctly
-    assert os.path.exists('.version')
-    assert io.open('.version').read().strip() == '0.24.1'
+    assert in_git_dir.join('.version').read().strip() == '0.24.1'
 
     # Assert some things about the gits
-    assert get_output('git', 'status', '-s').strip() == ''
-    assert get_output('git', 'tag', '-l').strip() == 'v0.24.1'
-    assert get_output('git', 'log', '--oneline').strip().split() == [
-        mock.ANY, 'Mirror:', '0.24.1',
-    ]
+    assert _cmd('git', 'status', '-s') == ''
+    assert _cmd('git', 'tag', '-l') == 'v0.24.1'
+    assert _cmd('git', 'log', '--oneline').split()[1:] == ['Mirror:', '0.24.1']
 
 
-@pytest.mark.usefixtures('in_git_dir')
-def test_arguments():
+def test_arguments(in_git_dir):
     _apply_version_and_commit(
         '0.6.2', 'python', 'yapf', r'\.py$', 'yapf', ('-i',),
     )
-    assert yaml.safe_load(io.open('.pre-commit-hooks.yaml').read()) == [{
+    contents = in_git_dir.join('.pre-commit-hooks.yaml').read()
+    assert yaml.safe_load(contents) == [{
         'id': 'yapf',
         'name': 'yapf',
         'entry': 'yapf',
@@ -130,27 +105,24 @@ def returns_some_versions(_):
     return ['0.23.1', '0.24.0', '0.24.1']
 
 
-@pytest.mark.usefixtures('in_git_dir')
-def test_make_repo_starting_empty():
+def test_make_repo_starting_empty(in_git_dir):
     make_repo(
         '.', 'ruby', 'scss-lint', r'\.scss$', 'scss-lint', (),
         version_list_fn_map={'ruby': returns_some_versions},
     )
 
     # Assert that our things got copied over
-    assert os.path.exists('.pre-commit-hooks.yaml')
-    assert os.path.exists('hooks.yaml')
-    assert os.path.exists('__fake_gem.gemspec')
+    assert in_git_dir.join('.pre-commit-hooks.yaml').exists()
+    assert in_git_dir.join('hooks.yaml').exists()
+    assert in_git_dir.join('__fake_gem.gemspec').exists()
     # Assert that we set the version fiel correctly
-    assert os.path.exists('.version')
-    assert io.open('.version').read().strip() == '0.24.1'
+    assert in_git_dir.join('.version').read().strip() == '0.24.1'
 
-    # Assert some things about hte gits
-    assert get_output('git', 'status', '-s').strip() == ''
-    assert get_output('git', 'tag', '-l').strip().split() == [
-        'v0.23.1', 'v0.24.0', 'v0.24.1',
-    ]
-    log_lines = get_output('git', 'log', '--oneline').strip().splitlines()
+    # Assert some things about the gits
+    assert _cmd('git', 'status', '--short') == ''
+    expected = ['v0.23.1', 'v0.24.0', 'v0.24.1']
+    assert _cmd('git', 'tag', '-l').split() == expected
+    log_lines = _cmd('git', 'log', '--oneline').splitlines()
     log_lines_split = [log_line.split() for log_line in log_lines]
     assert log_lines_split == [
         [mock.ANY, 'Mirror:', '0.24.1'],
@@ -159,11 +131,9 @@ def test_make_repo_starting_empty():
     ]
 
 
-@pytest.mark.usefixtures('in_git_dir')
-def test_make_repo_starting_at_version():
+def test_make_repo_starting_at_version(in_git_dir):
     # Write a version file (as if we've already run this before)
-    with io.open('.version', 'w') as version_file:
-        version_file.write('0.23.1')
+    in_git_dir.join('.version').write('0.23.1')
 
     make_repo(
         '.', 'ruby', 'scss-lint', r'\.scss$', 'scss-lint', (),
@@ -171,10 +141,8 @@ def test_make_repo_starting_at_version():
     )
 
     # Assert that we only got tags / commits for the stuff we added
-    assert get_output('git', 'tag', '-l').strip().split() == [
-        'v0.24.0', 'v0.24.1',
-    ]
-    log_lines = get_output('git', 'log', '--oneline').strip().splitlines()
+    assert _cmd('git', 'tag', '-l').split() == ['v0.24.0', 'v0.24.1']
+    log_lines = _cmd('git', 'log', '--oneline').splitlines()
     log_lines_split = [log_line.split() for log_line in log_lines]
     assert log_lines_split == [
         [mock.ANY, 'Mirror:', '0.24.1'],
@@ -183,55 +151,51 @@ def test_make_repo_starting_at_version():
 
 
 @pytest.mark.integration
-@pytest.mark.usefixtures('in_git_dir')
-def test_ruby_integration():
+def test_ruby_integration(in_git_dir):
     make_repo('.', 'ruby', 'scss-lint', r'\.scss$', 'scss-lint', ())
     # Our files should exist
-    assert os.path.exists('.version')
-    assert os.path.exists('.pre-commit-hooks.yaml')
-    assert os.path.exists('hooks.yaml')
-    assert os.path.exists('__fake_gem.gemspec')
+    assert in_git_dir.join('.version').exists()
+    assert in_git_dir.join('.pre-commit-hooks.yaml').exists()
+    assert in_git_dir.join('hooks.yaml').exists()
+    assert in_git_dir.join('__fake_gem.gemspec').exists()
 
     # Should have made _some_ tags
-    assert get_output('git', 'tag', '-l').strip()
+    assert _cmd('git', 'tag', '-l')
     # Should have made _some_ commits
-    assert get_output('git', 'log', '--oneline').strip()
+    assert _cmd('git', 'log', '--oneline')
 
     # TODO: test that the gem is installable
 
 
 @pytest.mark.integration
-@pytest.mark.usefixtures('in_git_dir')
-def test_node_integration():
+def test_node_integration(in_git_dir):
     make_repo('.', 'node', 'jshint', r'\.js$', 'jshint', ())
     # Our files should exist
-    assert os.path.exists('.version')
-    assert os.path.exists('.pre-commit-hooks.yaml')
-    assert os.path.exists('hooks.yaml')
-    assert os.path.exists('package.json')
+    assert in_git_dir.join('.version').exists()
+    assert in_git_dir.join('.pre-commit-hooks.yaml').exists()
+    assert in_git_dir.join('hooks.yaml').exists()
+    assert in_git_dir.join('package.json').exists()
 
     # Should have made _some_ tags
-    assert get_output('git', 'tag', '-l').strip()
+    assert _cmd('git', 'tag', '-l')
     # Should have made _some_ commits
-    assert get_output('git', 'log', '--oneline').strip()
+    assert _cmd('git', 'log', '--oneline')
 
     # TODO: test that the package is installable
 
 
-@pytest.mark.integration
-@pytest.mark.usefixtures('in_git_dir')
-def test_python_integration():
+def test_python_integration(in_git_dir):
     make_repo('.', 'python', 'flake8', r'\.py$', 'flake8', ())
     # Our files should exist
-    assert os.path.exists('.version')
-    assert os.path.exists('.pre-commit-hooks.yaml')
-    assert os.path.exists('hooks.yaml')
-    assert os.path.exists('setup.py')
+    assert in_git_dir.join('.version').exists()
+    assert in_git_dir.join('.pre-commit-hooks.yaml').exists()
+    assert in_git_dir.join('hooks.yaml').exists()
+    assert in_git_dir.join('setup.py').exists()
 
-    # Should have _some_ tags
-    assert get_output('git', 'tag', '-l').strip()
-    # Should have _some_ commits
-    assert get_output('git', 'log', '--oneline').strip()
+    # Should have made _some_ tags
+    assert _cmd('git', 'tag', '-l')
+    # Should have made _some_ commits
+    assert _cmd('git', 'log', '--oneline')
 
     # To make sure the name is valid
     subprocess.check_call((sys.executable, 'setup.py', 'egg_info'))

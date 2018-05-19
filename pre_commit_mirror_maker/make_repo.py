@@ -1,13 +1,10 @@
-from __future__ import unicode_literals
-
 import contextlib
-import io
+import json
 import os.path
 import shutil
 import subprocess
 
 import pkg_resources
-import yaml
 
 from pre_commit_mirror_maker.languages import VERSION_LIST_FUNCTIONS
 
@@ -54,9 +51,9 @@ def format_files_to_directory(src, dest, format_vars):
         # Flat directory structure
         if not os.path.isfile(os.path.join(src, filename)):
             continue
-        contents = io.open(os.path.join(src, filename)).read()
+        contents = open(os.path.join(src, filename)).read()
         output_contents = contents.format(**format_vars)
-        with io.open(os.path.join(dest, filename), 'w') as file_obj:
+        with open(os.path.join(dest, filename), 'w') as file_obj:
             file_obj.write(output_contents)
 
 
@@ -74,7 +71,7 @@ def _apply_version_and_commit(
         'name': package_name,
         'files': files_regex,
         'entry': entry,
-        'args': yaml.safe_dump(args),
+        'args': json.dumps(args),
     }
 
     # 'all' is responsible for writing the version / hooks.yaml file
@@ -90,10 +87,8 @@ def _apply_version_and_commit(
 
     # Commit and tag
     subprocess.check_call(('git', 'add', '.'))
-    subprocess.check_call((
-        'git', 'commit', '-m', 'Mirror: {}'.format(version)
-    ))
-    subprocess.check_call(('git', 'tag', 'v{}'.format(version)))
+    subprocess.check_call(('git', 'commit', '-m', f'Mirror: {version}'))
+    subprocess.check_call(('git', 'tag', f'v{version}'))
 
 
 def make_repo(
@@ -112,7 +107,7 @@ def make_repo(
     with cwd(repo):
         package_versions = version_list_fn_map[language](package_name)
         if os.path.exists('.version'):
-            previous_version = io.open('.version').read().strip()
+            previous_version = open('.version').read().strip()
             previous_version_index = package_versions.index(previous_version)
             versions_to_apply = package_versions[previous_version_index + 1:]
         else:

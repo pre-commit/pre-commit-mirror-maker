@@ -1,8 +1,5 @@
-from __future__ import unicode_literals
-
 import pytest
 
-from pre_commit_mirror_maker import five
 from pre_commit_mirror_maker.languages import node_get_package_versions
 from pre_commit_mirror_maker.languages import python_get_package_versions
 from pre_commit_mirror_maker.languages import ruby_get_package_versions
@@ -10,7 +7,7 @@ from pre_commit_mirror_maker.languages import ruby_get_package_versions
 
 def assert_all_text(versions):
     for version in versions:
-        assert type(version) is five.text
+        assert type(version) is str
 
 
 @pytest.mark.integration

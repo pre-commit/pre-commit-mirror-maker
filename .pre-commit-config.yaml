@@ -9,8 +9,20 @@ repos:
     -   id: debug-statements
     -   id: name-tests-test
     -   id: flake8
+    -   id: double-quote-string-fixer
+    -   id: requirements-txt-fixer
 -   repo: https://github.com/asottile/reorder_python_imports
     rev: v1.0.1
     hooks:
     -   id: reorder-python-imports
-        language_version: python2.7
+        args: [--py3-plus]
+-   repo: https://github.com/asottile/pyupgrade
+    rev: v1.2.0
+    hooks:
+    -   id: pyupgrade
+        args: [--py3-plus]
+-   repo: https://github.com/asottile/add-trailing-comma
+    rev: v0.6.4
+    hooks:
+    -   id: add-trailing-comma
+        args: [--py36-plus]

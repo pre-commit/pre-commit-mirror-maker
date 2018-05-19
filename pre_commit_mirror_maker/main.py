@@ -1,11 +1,26 @@
-from __future__ import unicode_literals
-
 import argparse
 
 from pre_commit_mirror_maker.make_repo import make_repo
 from pre_commit_mirror_maker.make_repo import VERSION_LIST_FUNCTIONS
-from pre_commit_mirror_maker.util import from_utf8
-from pre_commit_mirror_maker.util import split_by_commas
+
+
+def split_by_commas(maybe_s):
+    """Split a string by commas, but allow escaped commas.
+    - If maybe_s is falsey, returns an empty tuple
+    - Ignore backslashed commas
+    """
+    if not maybe_s:
+        return ()
+    parts = []
+    split_by_backslash = maybe_s.split(r'\,')
+    for split_by_backslash_part in split_by_backslash:
+        splitby_comma = split_by_backslash_part.split(',')
+        if parts:
+            parts[-1] += ',' + splitby_comma[0]
+        else:
+            parts.append(splitby_comma[0])
+        parts.extend(splitby_comma[1:])
+    return tuple(parts)
 
 
 def main(argv=None, make_repo_fn=None):
@@ -44,16 +59,12 @@ def main(argv=None, make_repo_fn=None):
     )
     args = parser.parse_args(argv)
 
-    repo_path = from_utf8(args.repo_path)
-    language = from_utf8(args.language)
-    package_name = from_utf8(args.package_name)
-    files_regex = from_utf8(args.files_regex)
-    hook_args = split_by_commas(from_utf8(args.args))
-
-    if args.entry is None:
-        entry = package_name
-    else:
-        entry = from_utf8(args.entry)
+    repo_path = args.repo_path
+    language = args.language
+    package_name = args.package_name
+    files_regex = args.files_regex
+    hook_args = split_by_commas(args.args)
+    entry = args.entry or package_name
 
     return make_repo_fn(
         repo_path, language, package_name, files_regex, entry, hook_args,
