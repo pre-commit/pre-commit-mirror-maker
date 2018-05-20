@@ -1,8 +1,25 @@
-from __future__ import unicode_literals
+from unittest import mock
 
-import mock
+import pytest
 
 from pre_commit_mirror_maker.main import main
+from pre_commit_mirror_maker.main import split_by_commas
+
+
+@pytest.mark.parametrize(
+    ('input_s', 'expected'),
+    (
+        ('', ()),
+        (None, ()),
+        ('onearg', ('onearg',)),
+        ('two,args', ('two', 'args')),
+        (r'arg,with\,escaped', ('arg', 'with,escaped')),
+        (r'-i,--ignore=E265\,E309\,E501', ('-i', '--ignore=E265,E309,E501')),
+    ),
+)
+def test_split_by_commas(input_s, expected):
+    output = split_by_commas(input_s)
+    assert output == expected
 
 
 def test_main_passes_args():

@@ -1,5 +1,5 @@
 coverage
 flake8
-mock
-pytest
 pre-commit
+pytest
+pytest-env
