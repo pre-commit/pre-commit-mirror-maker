@@ -2,5 +2,5 @@
     name: {name}
     entry: {entry}
     language: {language}
-    files: {files}
+    '{match_key}': {match_val}
     args: {args}
