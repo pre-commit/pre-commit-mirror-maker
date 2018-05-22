@@ -2,8 +2,13 @@ from unittest import mock
 
 import pytest
 
-from pre_commit_mirror_maker.main import main
-from pre_commit_mirror_maker.main import split_by_commas
+from pre_commit_mirror_maker import main
+
+
+@pytest.fixture
+def mock_make_repo():
+    with mock.patch.object(main, 'make_repo', return_value=0) as mck:
+        yield mck
 
 
 @pytest.mark.parametrize(
@@ -18,46 +23,42 @@ from pre_commit_mirror_maker.main import split_by_commas
     ),
 )
 def test_split_by_commas(input_s, expected):
-    output = split_by_commas(input_s)
+    output = main.split_by_commas(input_s)
     assert output == expected
 
 
-def test_main_passes_args():
-    mock_make_repo = mock.Mock(return_value=0)
-    ret = main(
-        argv=[
-            '.', 'ruby', 'scss-lint', r'\.scss$', '--entry', 'scss-lint-entry',
-        ],
-        make_repo_fn=mock_make_repo,
-    )
-    assert ret == 0
+def test_main_passes_args(mock_make_repo):
+    assert not main.main((
+        '.',
+        '--language', 'ruby',
+        '--package-name', 'scss-lint',
+        '--files-regex', r'\.scss$',
+        '--entry', 'scss-lint-entry',
+    ))
     mock_make_repo.assert_called_once_with(
-        '.', 'ruby', 'scss-lint', r'\.scss$', 'scss-lint-entry', (),
+        '.',
+        language='ruby', name='scss-lint', entry='scss-lint-entry',
+        match_key='files', match_val=r'\.scss$', args='[]',
     )
 
 
-def test_main_defaults_entry_to_package_name():
-    mock_make_repo = mock.Mock(return_value=0)
-    ret = main(
-        argv=['.', 'ruby', 'scss-lint', r'\.scss$'],
-        make_repo_fn=mock_make_repo,
-    )
-    assert ret == 0
-    mock_make_repo.assert_called_once_with(
-        '.', 'ruby', 'scss-lint', r'\.scss$', 'scss-lint', (),
-    )
+def test_main_defaults_entry_to_package_name(mock_make_repo):
+    assert not main.main((
+        '.',
+        '--language', 'ruby',
+        '--package-name', 'scss-lint',
+        '--files-regex', r'\.scss$',
+    ))
+    assert mock_make_repo.call_args[1]['entry'] == 'scss-lint'
 
 
-def test_main_with_args():
-    mock_make_repo = mock.Mock(return_value=0)
-    main(
-        argv=[
-            '.', 'python', 'yapf', r'\.py$',
-            r'--args=-i,--ignore=E265\,E309\,E501',
-        ],
-        make_repo_fn=mock_make_repo,
-    )
-    mock_make_repo.assert_called_once_with(
-        '.', 'python', 'yapf', r'\.py$', 'yapf',
-        ('-i', '--ignore=E265,E309,E501'),
-    )
+def test_main_with_args(mock_make_repo):
+    assert not main.main((
+        '.',
+        '--language', 'python',
+        '--package-name', 'yapf',
+        '--files-regex', r'\.py$',
+        r'--args=-i,--ignore=E265\,E309\,E501',
+    ))
+    expected = '["-i", "--ignore=E265,E309,E501"]'
+    assert mock_make_repo.call_args[1]['args'] == expected

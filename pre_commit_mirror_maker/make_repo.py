@@ -1,28 +1,15 @@
-import contextlib
-import json
 import os.path
-import shutil
 import subprocess
 
 import pkg_resources
 
-from pre_commit_mirror_maker.languages import VERSION_LIST_FUNCTIONS
+from pre_commit_mirror_maker.languages import LIST_VERSIONS
 
 
-EXCLUDED_EXTENSIONS = frozenset({'.pyc'})
+EXCLUDED_EXTENSIONS = ('.pyc',)
 
 
-@contextlib.contextmanager
-def cwd(directory):
-    original_cwd = os.getcwd()
-    os.chdir(directory)
-    try:
-        yield
-    finally:
-        os.chdir(original_cwd)
-
-
-def format_files_to_directory(src, dest, format_vars):
+def format_files(src, dest, **fmt_vars):
     """Copies all files inside src into dest while formatting the contents
     of the files into the output.
 
@@ -37,88 +24,55 @@ def format_files_to_directory(src, dest, format_vars):
     herp bar derp
     :param text src: Source directory.
     :param text dest: Destination directory.
-    :param dict format_vars: Vars to format into the files.
+    :param dict fmt_vars: Vars to format into the files.
     """
     assert os.path.exists(src)
     assert os.path.exists(dest)
     # Only at the root.  Could be made more complicated and recursive later
     for filename in os.listdir(src):
-        if any(
-                filename.endswith(extension)
-                for extension in EXCLUDED_EXTENSIONS
-        ):
+        if filename.endswith(EXCLUDED_EXTENSIONS):
             continue
         # Flat directory structure
-        if not os.path.isfile(os.path.join(src, filename)):
+        elif not os.path.isfile(os.path.join(src, filename)):
             continue
-        contents = open(os.path.join(src, filename)).read()
-        output_contents = contents.format(**format_vars)
+        with open(os.path.join(src, filename)) as f:
+            output_contents = f.read().format(**fmt_vars)
         with open(os.path.join(dest, filename), 'w') as file_obj:
             file_obj.write(output_contents)
 
 
-def _apply_version_and_commit(
-        version,
-        language,
-        package_name,
-        files_regex,
-        entry,
-        args,
-):
-    format_vars = {
-        'version': version,
-        'language': language,
-        'name': package_name,
-        'files': files_regex,
-        'entry': entry,
-        'args': json.dumps(args),
-    }
+def _commit_version(repo, *, language, version, **fmt_vars):
+    # 'all' writes the .version and .pre-commit-hooks.yaml files
+    for lang in ('all', language):
+        src = pkg_resources.resource_filename('pre_commit_mirror_maker', lang)
+        format_files(src, repo, language=language, version=version, **fmt_vars)
 
-    # 'all' is responsible for writing the version / hooks.yaml file
-    for resource_dir in ('all', language):
-        src_dir = pkg_resources.resource_filename(
-            'pre_commit_mirror_maker', resource_dir,
-        )
-        format_files_to_directory(src_dir, '.', format_vars)
+    hooks_yaml = os.path.join(repo, 'hooks.yaml')
+    if os.path.exists(hooks_yaml):
+        os.remove(hooks_yaml)
 
-    # https://github.com/pre-commit/pre-commit/pull/470 moved the default
-    # file to .pre-commit-hooks.yaml -- populate the legacy file as well
-    shutil.copy('.pre-commit-hooks.yaml', 'hooks.yaml')
+    def git(*cmd):
+        subprocess.check_call(('git', '-C', repo) + cmd)
 
     # Commit and tag
-    subprocess.check_call(('git', 'add', '.'))
-    subprocess.check_call(('git', 'commit', '-m', f'Mirror: {version}'))
-    subprocess.check_call(('git', 'tag', f'v{version}'))
+    git('add', '.')
+    git('commit', '-m', f'Mirror: {version}')
+    git('tag', f'v{version}')
 
 
-def make_repo(
-        repo,
-        language,
-        package_name,
-        files_regex,
-        entry,
-        args,
-        version_list_fn_map=None,
-):
-    version_list_fn_map = version_list_fn_map or VERSION_LIST_FUNCTIONS
-    assert os.path.exists(os.path.join(repo, '.git'))
-    assert language in version_list_fn_map
+def make_repo(repo, *, language, name, **fmt_vars):
+    assert os.path.exists(os.path.join(repo, '.git')), repo
 
-    with cwd(repo):
-        package_versions = version_list_fn_map[language](package_name)
-        if os.path.exists('.version'):
-            previous_version = open('.version').read().strip()
-            previous_version_index = package_versions.index(previous_version)
-            versions_to_apply = package_versions[previous_version_index + 1:]
-        else:
-            versions_to_apply = package_versions
+    package_versions = LIST_VERSIONS[language](name)
+    version_file = os.path.join(repo, '.version')
+    if os.path.exists(version_file):
+        previous_version = open(version_file).read().strip()
+        previous_version_index = package_versions.index(previous_version)
+        versions_to_apply = package_versions[previous_version_index + 1:]
+    else:
+        versions_to_apply = package_versions
 
-        for version in versions_to_apply:
-            _apply_version_and_commit(
-                version,
-                language,
-                package_name,
-                files_regex,
-                entry,
-                args,
-            )
+    for version in versions_to_apply:
+        _commit_version(
+            repo, name=name, language=language, version=version, **fmt_vars,
+        )

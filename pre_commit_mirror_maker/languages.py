@@ -22,7 +22,7 @@ def python_get_package_versions(package_name):
     return list(reversed(versions))
 
 
-VERSION_LIST_FUNCTIONS = {
+LIST_VERSIONS = {
     'node': node_get_package_versions,
     'python': python_get_package_versions,
     'ruby': ruby_get_package_versions,

@@ -1,7 +1,8 @@
 import argparse
+import json
 
+from pre_commit_mirror_maker.make_repo import LIST_VERSIONS
 from pre_commit_mirror_maker.make_repo import make_repo
-from pre_commit_mirror_maker.make_repo import VERSION_LIST_FUNCTIONS
 
 
 def split_by_commas(maybe_s):
@@ -23,30 +24,29 @@ def split_by_commas(maybe_s):
     return tuple(parts)
 
 
-def main(argv=None, make_repo_fn=None):
-    make_repo_fn = make_repo_fn or make_repo
-
+def main(argv=None):
     parser = argparse.ArgumentParser()
     parser.add_argument(
         'repo_path',
         help='Local path where the git repo is checked out.',
     )
     parser.add_argument(
-        'language',
-        choices=VERSION_LIST_FUNCTIONS.keys(),
+        '--language', required=True, choices=LIST_VERSIONS,
         help='Which language to use.',
     )
     parser.add_argument(
-        'package_name',
+        '--package-name', required=True,
         help='Package name as it appears on the remote package manager.',
     )
-    parser.add_argument(
-        'files_regex',
-        help='Files regex to use in hooks.yaml',
+
+    mutex = parser.add_mutually_exclusive_group(required=True)
+    mutex.add_argument(
+        '--files-regex', help='Files regex to use in hooks.yaml',
     )
+    mutex.add_argument('--types', help='`identify` type to match')
+
     parser.add_argument(
-        '--entry',
-        help='Entry point, defaults to the package name.',
+        '--entry', help='Entry point, defaults to the package name.',
     )
     parser.add_argument(
         '--args',
@@ -59,15 +59,14 @@ def main(argv=None, make_repo_fn=None):
     )
     args = parser.parse_args(argv)
 
-    repo_path = args.repo_path
-    language = args.language
-    package_name = args.package_name
-    files_regex = args.files_regex
-    hook_args = split_by_commas(args.args)
-    entry = args.entry or package_name
-
-    return make_repo_fn(
-        repo_path, language, package_name, files_regex, entry, hook_args,
+    make_repo(
+        args.repo_path,
+        name=args.package_name,
+        language=args.language,
+        entry=args.entry or args.package_name,
+        match_key='types' if args.types else 'files',
+        match_val=f'[{args.types}]' if args.types else args.files_regex,
+        args=json.dumps(split_by_commas(args.args)),
     )
 
 
