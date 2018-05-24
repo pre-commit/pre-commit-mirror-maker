@@ -1,8 +1,10 @@
+import json
 import os.path
 import subprocess
 
 import pkg_resources
 
+from pre_commit_mirror_maker.languages import ADDITIONAL_DEPENDENCIES
 from pre_commit_mirror_maker.languages import LIST_VERSIONS
 
 
@@ -41,11 +43,20 @@ def format_files(src, dest, **fmt_vars):
             file_obj.write(output_contents)
 
 
-def _commit_version(repo, *, language, version, **fmt_vars):
+def _commit_version(
+        repo, *, language, version, additional_dependencies, **fmt_vars,
+):
     # 'all' writes the .version and .pre-commit-hooks.yaml files
     for lang in ('all', language):
         src = pkg_resources.resource_filename('pre_commit_mirror_maker', lang)
-        format_files(src, repo, language=language, version=version, **fmt_vars)
+        format_files(
+            src,
+            repo,
+            language=language,
+            version=version,
+            additional_dependencies=additional_dependencies,
+            **fmt_vars,
+        )
 
     hooks_yaml = os.path.join(repo, 'hooks.yaml')
     if os.path.exists(hooks_yaml):
@@ -73,6 +84,19 @@ def make_repo(repo, *, language, name, **fmt_vars):
         versions_to_apply = package_versions
 
     for version in versions_to_apply:
+        if language in ADDITIONAL_DEPENDENCIES:
+            additional_dependencies = ADDITIONAL_DEPENDENCIES[language](
+                name,
+                version,
+            )
+        else:
+            additional_dependencies = []
+
         _commit_version(
-            repo, name=name, language=language, version=version, **fmt_vars,
+            repo,
+            name=name,
+            language=language,
+            version=version,
+            additional_dependencies=json.dumps(additional_dependencies),
+            **fmt_vars,
         )

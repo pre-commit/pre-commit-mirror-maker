@@ -22,8 +22,28 @@ def python_get_package_versions(package_name):
     return list(reversed(versions))
 
 
+def rust_get_package_versions(package_name):
+    url = f'https://crates.io/api/v1/crates/{package_name}'
+    resp = json.load(urllib.request.urlopen(url))
+    return [version['num'] for version in resp['versions']]
+
+
+def node_get_additional_dependencies(package_name, package_version):
+    return [f'{package_name}@{package_version}']
+
+
+def rust_get_additional_dependencies(package_name, package_version):
+    return [f'cli:{package_name}:{package_version}']
+
+
 LIST_VERSIONS = {
     'node': node_get_package_versions,
     'python': python_get_package_versions,
     'ruby': ruby_get_package_versions,
+    'rust': rust_get_package_versions,
+}
+
+ADDITIONAL_DEPENDENCIES = {
+    'node': node_get_additional_dependencies,
+    'rust': rust_get_additional_dependencies,
 }

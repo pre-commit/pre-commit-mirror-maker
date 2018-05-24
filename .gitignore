@@ -6,6 +6,7 @@
 /.idea
 /.project
 /.pydevproject
+/.pytest_cache
 /.tox
 /.venv.touch
 /venv*
