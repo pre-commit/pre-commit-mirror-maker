@@ -65,6 +65,7 @@ def test_commit_version(in_git_dir):
         '.',
         version='0.24.1', language='ruby', name='scss-lint', entry='scss-lint',
         match_key='files', match_val=r'\.scss$', args='[]',
+        additional_dependencies=[],
     )
 
     # Assert that our things got copied over
@@ -84,6 +85,7 @@ def test_arguments(in_git_dir):
         '.',
         version='0.6.2', language='python', name='yapf', entry='yapf',
         match_key='files', match_val=r'\.py$', args='["-i"]',
+        additional_dependencies=['scikit-learn'],
     )
     contents = in_git_dir.join('.pre-commit-hooks.yaml').read()
     assert yaml.safe_load(contents) == [{
@@ -93,6 +95,7 @@ def test_arguments(in_git_dir):
         'language': 'python',
         'files': r'\.py$',
         'args': ['-i'],
+        'additional_dependencies': ['scikit-learn'],
     }]
 
 
@@ -211,5 +214,26 @@ def test_python_integration(in_git_dir):
 
     # To make sure the name is valid
     subprocess.check_call((sys.executable, 'setup.py', 'egg_info'))
+
+    # TODO: test that the package is installable
+
+
+@pytest.mark.integration
+def test_rust_integration(in_git_dir):
+    make_repo(
+        '.',
+        language='rust', name='shellharden', entry='shellharden',
+        match_key='types', match_val='shell', args='["--replace"]',
+    )
+    # Our files should exist
+    assert in_git_dir.join('.version').exists()
+    assert in_git_dir.join('.pre-commit-hooks.yaml').exists()
+    assert in_git_dir.join('Cargo.toml').exists()
+    assert in_git_dir.join('main.rs').exists()
+
+    # Should have made _some_ tags
+    assert _cmd('git', 'tag', '-l')
+    # Should have made _some_ commits
+    assert _cmd('git', 'log', '--oneline')
 
     # TODO: test that the package is installable

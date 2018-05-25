@@ -34,10 +34,10 @@ setup(
             'all/.pre-commit-hooks.yaml',
             'all/.version',
             'node/.npmignore',
-            'node/.pre-commit-hooks.yaml',
             'node/*',
             'python/*',
             'ruby/*',
+            'rust/*',
         ],
     },
 )
