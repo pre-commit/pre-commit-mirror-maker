@@ -4,7 +4,8 @@
 pre-commit-mirror-maker
 ==========
 
-Scripts for creating mirror repositories that do not have hooks.yaml
+Scripts for creating mirror repositories that do not have
+.pre-commit-hooks.yaml
 
 
 ### Installation

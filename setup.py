@@ -5,7 +5,8 @@ from setuptools import setup
 setup(
     name='pre-commit-mirror-maker',
     description=(
-        'Scripts for creating mirror repositories that do not have hooks.yaml'
+        'Scripts for creating mirror repositories that do not have '
+        '.pre-commit-hooks.yaml'
     ),
     url='https://github.com/pre-commit/pre-commit-mirror-maker',
     version='0.4.0',
