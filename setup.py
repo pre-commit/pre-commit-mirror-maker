@@ -9,7 +9,7 @@ setup(
         '.pre-commit-hooks.yaml'
     ),
     url='https://github.com/pre-commit/pre-commit-mirror-maker',
-    version='0.4.0',
+    version='1.0.0',
 
     author='Anthony Sottile',
     author_email='asottile@umich.edu',
