@@ -21,9 +21,8 @@ setup(
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
     ],
-
+    install_requires=['packaging'],
     packages=find_packages(exclude=('tests*', 'testing*')),
-
     entry_points={
         'console_scripts': [
             'pre-commit-mirror = pre_commit_mirror_maker.main:main',
