@@ -43,20 +43,11 @@ def format_files(src, dest, **fmt_vars):
             file_obj.write(output_contents)
 
 
-def _commit_version(
-        repo, *, language, version, additional_dependencies, **fmt_vars,
-):
+def _commit_version(repo, *, language, version, **fmt_vars):
     # 'all' writes the .version and .pre-commit-hooks.yaml files
     for lang in ('all', language):
         src = pkg_resources.resource_filename('pre_commit_mirror_maker', lang)
-        format_files(
-            src,
-            repo,
-            language=language,
-            version=version,
-            additional_dependencies=additional_dependencies,
-            **fmt_vars,
-        )
+        format_files(src, repo, language=language, version=version, **fmt_vars)
 
     hooks_yaml = os.path.join(repo, 'hooks.yaml')
     if os.path.exists(hooks_yaml):
