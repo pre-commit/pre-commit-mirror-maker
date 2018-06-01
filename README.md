@@ -39,8 +39,8 @@ optional arguments:
   --entry ENTRY         Entry point, defaults to the package name.
   --args ARGS           Comma separated arguments for the hook. Escape commas
                         in args with a backslash (\). For example: --args='-i,
-                        --ignore=E265\,E309\,E501' would give you [-i,
-                        --ignore=E265,E309,E501]
+                        --ignore=E265\,E501' would give you [-i,
+                        --ignore=E265,E501]
 ```
 
 

@@ -53,8 +53,8 @@ def main(argv=None):
         help=(
             'Comma separated arguments for the hook.  Escape commas in args '
             'with a backslash (\\).  '
-            r"For example: --args='-i,--ignore=E265\,E309\,E501' would give "
-            'you [-i, --ignore=E265,E309,E501]'
+            r"For example: --args='-i,--ignore=E265\,E501' would give "
+            'you [-i, --ignore=E265,E501]'
         ),
     )
     args = parser.parse_args(argv)
