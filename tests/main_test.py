@@ -19,7 +19,7 @@ def mock_make_repo():
         ('onearg', ('onearg',)),
         ('two,args', ('two', 'args')),
         (r'arg,with\,escaped', ('arg', 'with,escaped')),
-        (r'-i,--ignore=E265\,E309\,E501', ('-i', '--ignore=E265,E309,E501')),
+        (r'-i,--ignore=E265\,E501', ('-i', '--ignore=E265,E501')),
     ),
 )
 def test_split_by_commas(input_s, expected):
@@ -58,7 +58,7 @@ def test_main_with_args(mock_make_repo):
         '--language', 'python',
         '--package-name', 'yapf',
         '--files-regex', r'\.py$',
-        r'--args=-i,--ignore=E265\,E309\,E501',
+        r'--args=-i,--ignore=E265\,E501',
     ))
-    expected = '["-i", "--ignore=E265,E309,E501"]'
+    expected = '["-i", "--ignore=E265,E501"]'
     assert mock_make_repo.call_args[1]['args'] == expected
