@@ -26,3 +26,9 @@ repos:
     hooks:
     -   id: add-trailing-comma
         args: [--py36-plus]
+-   repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v0.600
+    hooks:
+    -   id: mypy
+        # not an actual source module
+        exclude: ^pre_commit_mirror_maker/python/setup.py$

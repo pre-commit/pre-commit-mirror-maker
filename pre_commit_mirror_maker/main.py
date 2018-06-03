@@ -1,18 +1,22 @@
 import argparse
 import json
+from typing import List
+from typing import Optional
+from typing import Sequence
+from typing import Tuple
 
 from pre_commit_mirror_maker.make_repo import LIST_VERSIONS
 from pre_commit_mirror_maker.make_repo import make_repo
 
 
-def split_by_commas(maybe_s):
+def split_by_commas(maybe_s: str) -> Tuple[str, ...]:
     """Split a string by commas, but allow escaped commas.
     - If maybe_s is falsey, returns an empty tuple
     - Ignore backslashed commas
     """
     if not maybe_s:
         return ()
-    parts = []
+    parts: List[str] = []
     split_by_backslash = maybe_s.split(r'\,')
     for split_by_backslash_part in split_by_backslash:
         splitby_comma = split_by_backslash_part.split(',')
@@ -24,7 +28,7 @@ def split_by_commas(maybe_s):
     return tuple(parts)
 
 
-def main(argv=None):
+def main(argv: Optional[Sequence[str]] = None) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument(
         'repo_path',
@@ -68,6 +72,7 @@ def main(argv=None):
         match_val=f'[{args.types}]' if args.types else args.files_regex,
         args=json.dumps(split_by_commas(args.args)),
     )
+    return 0
 
 
 if __name__ == '__main__':

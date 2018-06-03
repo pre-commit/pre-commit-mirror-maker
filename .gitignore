@@ -1,14 +1,9 @@
 *.egg-info
-*.iml
 *.py[co]
 .*.sw[a-z]
 /.coverage
-/.idea
-/.project
-/.pydevproject
+/.mypy_cache
 /.pytest_cache
 /.tox
-/.venv.touch
+/dist
 /venv*
-coverage-html
-dist

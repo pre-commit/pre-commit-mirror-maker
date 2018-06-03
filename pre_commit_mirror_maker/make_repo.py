@@ -11,7 +11,7 @@ from pre_commit_mirror_maker.languages import LIST_VERSIONS
 EXCLUDED_EXTENSIONS = ('.pyc',)
 
 
-def format_files(src, dest, **fmt_vars):
+def format_files(src: str, dest: str, **fmt_vars: str) -> None:
     """Copies all files inside src into dest while formatting the contents
     of the files into the output.
 
@@ -43,7 +43,12 @@ def format_files(src, dest, **fmt_vars):
             file_obj.write(output_contents)
 
 
-def _commit_version(repo, *, language, version, **fmt_vars):
+def _commit_version(
+        repo: str, *,
+        language: str,
+        version: str,
+        **fmt_vars: str,
+) -> None:
     # 'all' writes the .version and .pre-commit-hooks.yaml files
     for lang in ('all', language):
         src = pkg_resources.resource_filename('pre_commit_mirror_maker', lang)
@@ -53,7 +58,7 @@ def _commit_version(repo, *, language, version, **fmt_vars):
     if os.path.exists(hooks_yaml):
         os.remove(hooks_yaml)
 
-    def git(*cmd):
+    def git(*cmd: str) -> None:
         subprocess.check_call(('git', '-C', repo) + cmd)
 
     # Commit and tag
@@ -62,7 +67,7 @@ def _commit_version(repo, *, language, version, **fmt_vars):
     git('tag', f'v{version}')
 
 
-def make_repo(repo, *, language, name, **fmt_vars):
+def make_repo(repo: str, *, language: str, name: str, **fmt_vars: str) -> None:
     assert os.path.exists(os.path.join(repo, '.git')), repo
 
     package_versions = LIST_VERSIONS[language](name)
