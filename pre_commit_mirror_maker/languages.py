@@ -1,39 +1,44 @@
 import json
 import subprocess
 import urllib.request
+from typing import List
 
 from packaging import version
 
 
-def ruby_get_package_versions(package_name):
+def ruby_get_package_versions(package_name: str) -> List[str]:
     url = f'https://rubygems.org/api/v1/versions/{package_name}.json'
-    resp = json.load(urllib.request.urlopen(url))
+    resp = json.loads(urllib.request.urlopen(url).read())
     return list(reversed([version['number'] for version in resp]))
 
 
-def node_get_package_versions(package_name):
+def node_get_package_versions(package_name: str) -> List[str]:
     cmd = ('npm', 'view', package_name, '--json')
     output = json.loads(subprocess.check_output(cmd))
     return output['versions']
 
 
-def python_get_package_versions(package_name):
+def python_get_package_versions(package_name: str) -> List[str]:
     url = f'https://pypi.org/pypi/{package_name}/json'
-    resp = json.load(urllib.request.urlopen(url))
+    resp = json.loads(urllib.request.urlopen(url).read())
     return sorted(resp['releases'], key=lambda k: version.parse(k))
 
 
-def rust_get_package_versions(package_name):
+def rust_get_package_versions(package_name: str) -> List[str]:
     url = f'https://crates.io/api/v1/crates/{package_name}'
-    resp = json.load(urllib.request.urlopen(url))
+    resp = json.loads(urllib.request.urlopen(url).read())
     return list(reversed([version['num'] for version in resp['versions']]))
 
 
-def node_get_additional_dependencies(package_name, package_version):
+def node_get_additional_dependencies(
+        package_name: str, package_version: str,
+) -> List[str]:
     return [f'{package_name}@{package_version}']
 
 
-def rust_get_additional_dependencies(package_name, package_version):
+def rust_get_additional_dependencies(
+        package_name: str, package_version: str,
+) -> List[str]:
     return [f'cli:{package_name}:{package_version}']
 
 
