@@ -8,7 +8,7 @@ from packaging import version
 
 def ruby_get_package_versions(package_name: str) -> List[str]:
     url = f'https://rubygems.org/api/v1/versions/{package_name}.json'
-    resp = json.loads(urllib.request.urlopen(url).read())
+    resp = json.load(urllib.request.urlopen(url))
     return list(reversed([version['number'] for version in resp]))
 
 
@@ -20,13 +20,13 @@ def node_get_package_versions(package_name: str) -> List[str]:
 
 def python_get_package_versions(package_name: str) -> List[str]:
     url = f'https://pypi.org/pypi/{package_name}/json'
-    resp = json.loads(urllib.request.urlopen(url).read())
+    resp = json.load(urllib.request.urlopen(url))
     return sorted(resp['releases'], key=lambda k: version.parse(k))
 
 
 def rust_get_package_versions(package_name: str) -> List[str]:
     url = f'https://crates.io/api/v1/crates/{package_name}'
-    resp = json.loads(urllib.request.urlopen(url).read())
+    resp = json.load(urllib.request.urlopen(url))
     return list(reversed([version['num'] for version in resp['versions']]))
 
 
