@@ -65,7 +65,7 @@ def test_commit_version(in_git_dir):
         '.',
         version='0.24.1', language='ruby', name='scss-lint', entry='scss-lint',
         match_key='files', match_val=r'\.scss$', args='[]',
-        additional_dependencies=[],
+        additional_dependencies='[]',
     )
 
     # Assert that our things got copied over
@@ -85,7 +85,7 @@ def test_arguments(in_git_dir):
         '.',
         version='0.6.2', language='python', name='yapf', entry='yapf',
         match_key='files', match_val=r'\.py$', args='["-i"]',
-        additional_dependencies=['scikit-learn'],
+        additional_dependencies='["scikit-learn"]',
     )
     contents = in_git_dir.join('.pre-commit-hooks.yaml').read()
     assert yaml.safe_load(contents) == [{
