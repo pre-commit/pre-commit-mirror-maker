@@ -70,7 +70,7 @@ def test_commit_version(in_git_dir):
 
     # Assert that our things got copied over
     assert in_git_dir.join('.pre-commit-hooks.yaml').exists()
-    assert in_git_dir.join('__fake_gem.gemspec').exists()
+    assert in_git_dir.join('pre_commit_fake_gem.gemspec').exists()
     # Assert that we set the version file correctly
     assert in_git_dir.join('.version').read().strip() == '0.24.1'
 
@@ -115,7 +115,7 @@ def test_make_repo_starting_empty(in_git_dir, fake_versions):
 
     # Assert that our things got copied over
     assert in_git_dir.join('.pre-commit-hooks.yaml').exists()
-    assert in_git_dir.join('__fake_gem.gemspec').exists()
+    assert in_git_dir.join('pre_commit_fake_gem.gemspec').exists()
     # Assert that we set the version fiel correctly
     assert in_git_dir.join('.version').read().strip() == '0.24.1'
 
@@ -166,7 +166,7 @@ def test_ruby_integration(in_git_dir):
     # Our files should exist
     assert in_git_dir.join('.version').exists()
     assert in_git_dir.join('.pre-commit-hooks.yaml').exists()
-    assert in_git_dir.join('__fake_gem.gemspec').exists()
+    assert in_git_dir.join('pre_commit_fake_gem.gemspec').exists()
 
     # Should have made _some_ tags
     assert _cmd('git', 'tag', '-l')
