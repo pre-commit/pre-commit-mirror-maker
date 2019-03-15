@@ -4,4 +4,5 @@
     language: {language}
     '{match_key}': {match_val}
     args: {args}
+    require_serial: {require_serial}
     additional_dependencies: {additional_dependencies}

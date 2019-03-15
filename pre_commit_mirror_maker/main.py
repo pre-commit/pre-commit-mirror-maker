@@ -61,6 +61,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             'you [-i, --ignore=E265,E501]'
         ),
     )
+    parser.add_argument(
+        '--require-serial', action='store_true',
+        help='Set `require_serial: true` for the hook',
+    )
     args = parser.parse_args(argv)
 
     make_repo(
@@ -71,6 +75,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         match_key='types' if args.types else 'files',
         match_val=f'[{args.types}]' if args.types else args.files_regex,
         args=json.dumps(split_by_commas(args.args)),
+        require_serial=json.dumps(args.require_serial),
     )
     return 0
 
