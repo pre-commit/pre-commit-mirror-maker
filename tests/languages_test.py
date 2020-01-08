@@ -1,5 +1,6 @@
 import pytest
 
+from pre_commit_mirror_maker.languages import docker_image_get_package_versions
 from pre_commit_mirror_maker.languages import node_get_package_versions
 from pre_commit_mirror_maker.languages import python_get_package_versions
 from pre_commit_mirror_maker.languages import ruby_get_package_versions
@@ -9,6 +10,19 @@ from pre_commit_mirror_maker.languages import rust_get_package_versions
 def assert_all_text(versions):
     for version in versions:
         assert type(version) is str
+
+
+@pytest.mark.integration
+def test_docker_image_get_package_version_output():
+    ret = docker_image_get_package_versions('mvdan/shfmt')
+    assert ret
+    assert_all_text(ret)
+
+
+@pytest.mark.integration
+def test_docker_image_get_package_version_output_fail():
+    with pytest.raises(Exception, match=r'Only canonical DockerHub images'):
+        docker_image_get_package_versions('my.repo.io:8080/my/image')
 
 
 @pytest.mark.integration

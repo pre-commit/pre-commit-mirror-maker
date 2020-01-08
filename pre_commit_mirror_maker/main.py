@@ -53,6 +53,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         '--entry', help='Entry point, defaults to the package name.',
     )
     parser.add_argument(
+        '--id', help='Id, defaults to --entry.',
+    )
+    parser.add_argument(
         '--args',
         help=(
             'Comma separated arguments for the hook.  Escape commas in args '
@@ -67,11 +70,13 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     )
     args = parser.parse_args(argv)
 
+    entry = args.entry or args.package_name
     make_repo(
         args.repo_path,
         name=args.package_name,
         language=args.language,
-        entry=args.entry or args.package_name,
+        entry=entry,
+        id=args.id or entry,
         match_key='types' if args.types else 'files',
         match_val=f'[{args.types}]' if args.types else args.files_regex,
         args=json.dumps(split_by_commas(args.args)),

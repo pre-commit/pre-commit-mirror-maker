@@ -1,6 +1,6 @@
 -   id: {id}
-    name: {name}
-    entry: {entry}
+    name: {id}
+    entry: '{entry}:{version}'
     language: {language}
     '{match_key}': {match_val}
     args: {args}
