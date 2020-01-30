@@ -1,8 +1,8 @@
-[![Build Status](https://travis-ci.org/pre-commit/pre-commit-mirror-maker.svg?branch=master)](https://travis-ci.org/pre-commit/pre-commit-mirror-maker)
-[![Coverage Status](https://img.shields.io/coveralls/pre-commit/pre-commit-mirror-maker.svg?branch=master)](https://coveralls.io/r/pre-commit/pre-commit-mirror-maker)
+[![Build Status](https://dev.azure.com/asottile/asottile/_apis/build/status/pre-commit.pre-commit-mirror-maker?branchName=master)](https://dev.azure.com/asottile/asottile/_build/latest?definitionId=59&branchName=master)
+[![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/asottile/asottile/59/master.svg)](https://dev.azure.com/asottile/asottile/_build/latest?definitionId=59&branchName=master)
 
 pre-commit-mirror-maker
-==========
+=======================
 
 Scripts for creating mirror repositories that do not have
 .pre-commit-hooks.yaml
