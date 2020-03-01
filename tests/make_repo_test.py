@@ -159,7 +159,6 @@ def test_make_repo_starting_at_version(in_git_dir, fake_versions):
     ]
 
 
-@pytest.mark.integration
 def test_ruby_integration(in_git_dir):
     make_repo(
         '.',
@@ -180,7 +179,6 @@ def test_ruby_integration(in_git_dir):
     # TODO: test that the gem is installable
 
 
-@pytest.mark.integration
 def test_node_integration(in_git_dir):
     make_repo(
         '.',
@@ -224,7 +222,6 @@ def test_python_integration(in_git_dir):
     # TODO: test that the package is installable
 
 
-@pytest.mark.integration
 def test_rust_integration(in_git_dir):
     make_repo(
         '.',
