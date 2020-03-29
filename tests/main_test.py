@@ -39,7 +39,7 @@ def test_main_passes_args(mock_make_repo):
         '.',
         language='ruby', name='scss-lint', entry='scss-lint-entry',
         match_key='files', match_val=r'\.scss$', args='[]',
-        require_serial='false',
+        require_serial='false', pass_filenames='false',
     )
 
 
