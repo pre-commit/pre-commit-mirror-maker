@@ -34,11 +34,12 @@ def test_main_passes_args(mock_make_repo):
         '--package-name', 'scss-lint',
         '--files-regex', r'\.scss$',
         '--entry', 'scss-lint-entry',
+        '--id', 'scss-lint-id',
     ))
     mock_make_repo.assert_called_once_with(
         '.',
         language='ruby', name='scss-lint', entry='scss-lint-entry',
-        match_key='files', match_val=r'\.scss$', args='[]',
+        id='scss-lint-id', match_key='files', match_val=r'\.scss$', args='[]',
         require_serial='false', pass_filenames='false',
     )
 
@@ -51,6 +52,17 @@ def test_main_defaults_entry_to_package_name(mock_make_repo):
         '--files-regex', r'\.scss$',
     ))
     assert mock_make_repo.call_args[1]['entry'] == 'scss-lint'
+
+
+def test_main_defaults_id_to_entry(mock_make_repo):
+    assert not main.main((
+        '.',
+        '--language', 'ruby',
+        '--package-name', 'scss-lint',
+        '--entry', 'scss-lint',
+        '--files-regex', r'\.scss$',
+    ))
+    assert mock_make_repo.call_args[1]['id'] == 'scss-lint'
 
 
 def test_main_with_args(mock_make_repo):

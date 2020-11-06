@@ -50,6 +50,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     mutex.add_argument('--types', help='`identify` type to match')
 
     parser.add_argument(
+        '--id', help='Hook id, defaults to the entry point.',
+    )
+    parser.add_argument(
         '--entry', help='Entry point, defaults to the package name.',
     )
     parser.add_argument(
@@ -77,6 +80,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         name=args.package_name,
         language=args.language,
         entry=args.entry or args.package_name,
+        id=args.id or args.entry or args.package_name,
         match_key='types' if args.types else 'files',
         match_val=f'[{args.types}]' if args.types else args.files_regex,
         args=json.dumps(split_by_commas(args.args)),

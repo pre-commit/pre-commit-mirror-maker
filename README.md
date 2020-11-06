@@ -37,6 +37,7 @@ optional arguments:
   --files-regex FILES_REGEX
                         Files regex to use in hooks.yaml
   --types TYPES         `identify` type to match
+  --id ID               Hook id, defaults to the entry point.
   --entry ENTRY         Entry point, defaults to the package name.
   --args ARGS           Comma separated arguments for the hook. Escape commas
                         in args with a backslash (\). For example: --args='-i,
