@@ -66,7 +66,6 @@ def test_commit_version(in_git_dir):
         version='0.24.1', language='ruby', name='scss-lint', entry='scss-lint',
         id='scss-lint', match_key='files', match_val=r'\.scss$', args='[]',
         additional_dependencies='[]', require_serial='false',
-        pass_filenames='false',
     )
 
     # Assert that our things got copied over
@@ -87,7 +86,6 @@ def test_arguments(in_git_dir):
         version='0.6.2', language='python', name='yapf', entry='yapf',
         id='yapf', match_key='files', match_val=r'\.py$', args='["-i"]',
         additional_dependencies='["scikit-learn"]', require_serial='false',
-        pass_filenames='false',
     )
     contents = in_git_dir.join('.pre-commit-hooks.yaml').read()
     assert yaml.safe_load(contents) == [{
@@ -98,7 +96,6 @@ def test_arguments(in_git_dir):
         'files': r'\.py$',
         'args': ['-i'],
         'require_serial': False,
-        'pass_filenames': False,
         'additional_dependencies': ['scikit-learn'],
     }]
 
@@ -115,7 +112,7 @@ def test_make_repo_starting_empty(in_git_dir, fake_versions):
         '.',
         language='ruby', name='scss-lint', entry='scss-lint', id='scss-lint',
         match_key='files', match_val=r'\.scss$', args='[]',
-        require_serial='false', pass_filenames='false',
+        require_serial='false',
     )
 
     # Assert that our things got copied over
@@ -147,7 +144,7 @@ def test_make_repo_starting_at_version(in_git_dir, fake_versions):
         '.',
         language='ruby', name='scss-lint', entry='scss-lint', id='scss-lint',
         match_key='files', match_val=r'\.scss$', args='[]',
-        require_serial='false', pass_filenames='false',
+        require_serial='false',
     )
 
     assert not in_git_dir.join('hooks.yaml').exists()
@@ -167,7 +164,7 @@ def test_ruby_integration(in_git_dir):
         '.',
         language='ruby', name='scss-lint', entry='scss-lint', id='scss-lint',
         match_key='files', match_val=r'\.scss$', args='[]',
-        require_serial='false', pass_filenames='false',
+        require_serial='false',
     )
     # Our files should exist
     assert in_git_dir.join('.version').exists()
@@ -187,7 +184,7 @@ def test_node_integration(in_git_dir):
         '.',
         language='node', name='jshint', entry='jshint', id='jshint',
         match_key='files', match_val=r'\.js$', args='[]',
-        require_serial='false', pass_filenames='false',
+        require_serial='false',
     )
     # Our files should exist
     assert in_git_dir.join('.version').exists()
@@ -207,7 +204,7 @@ def test_python_integration(in_git_dir):
         '.',
         language='python', name='flake8', entry='flake8', id='flake8',
         match_key='files', match_val=r'\.py$', args='[]',
-        require_serial='false', pass_filenames='false',
+        require_serial='false',
     )
     # Our files should exist
     assert in_git_dir.join('.version').exists()
@@ -230,7 +227,7 @@ def test_rust_integration(in_git_dir):
         '.',
         language='rust', name='shellharden', entry='shellharden',
         id='shellharden', match_key='types', match_val='shell',
-        args='["--replace"]', require_serial='false', pass_filenames='false',
+        args='["--replace"]', require_serial='false',
     )
     # Our files should exist
     assert in_git_dir.join('.version').exists()

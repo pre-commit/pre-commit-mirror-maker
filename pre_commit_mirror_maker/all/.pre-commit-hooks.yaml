@@ -5,5 +5,4 @@
     '{match_key}': {match_val}
     args: {args}
     require_serial: {require_serial}
-    pass_filenames: {pass_filenames}
     additional_dependencies: {additional_dependencies}
