@@ -50,6 +50,5 @@ LIST_VERSIONS = {
 }
 
 ADDITIONAL_DEPENDENCIES = {
-    'node': node_get_additional_dependencies,
     'rust': rust_get_additional_dependencies,
 }
