@@ -47,7 +47,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     mutex.add_argument(
         '--files-regex', help='Files regex to use in hooks.yaml',
     )
-    mutex.add_argument('--types', help='`identify` type to match')
+    mutex.add_argument('--types', help='`identify` type to AND match')
+    mutex.add_argument(
+        '--types-or', action='append', help='`identify` type to OR match',
+    )
 
     parser.add_argument(
         '--id', help='Hook id, defaults to the entry point.',
@@ -70,16 +73,30 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     )
     args = parser.parse_args(argv)
 
+    minimum_pre_commit_version = '0'
+
+    if args.types_or:
+        match_key = 'types_or'
+        match_val = '[{}]'.format(', '.join(args.types_or))
+        minimum_pre_commit_version = '2.9.2'
+    elif args.types:
+        match_key = 'types'
+        match_val = f'[{args.types}]'
+    else:
+        match_key = 'files'
+        match_val = args.files_regex
+
     make_repo(
         args.repo_path,
         name=args.package_name,
         language=args.language,
         entry=args.entry or args.package_name,
         id=args.id or args.entry or args.package_name,
-        match_key='types' if args.types else 'files',
-        match_val=f'[{args.types}]' if args.types else args.files_regex,
+        match_key=match_key,
+        match_val=match_val,
         args=json.dumps(split_by_commas(args.args)),
         require_serial=json.dumps(args.require_serial),
+        minimum_pre_commit_version=minimum_pre_commit_version,
     )
     return 0
 
