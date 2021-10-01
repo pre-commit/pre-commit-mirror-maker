@@ -40,7 +40,7 @@ def test_main_passes_args(mock_make_repo):
         '.',
         language='ruby', name='scss-lint', entry='scss-lint-entry',
         id='scss-lint-id', match_key='files', match_val=r'\.scss$', args='[]',
-        require_serial='false',
+        require_serial='false', minimum_pre_commit_version='0',
     )
 
 
@@ -75,3 +75,48 @@ def test_main_with_args(mock_make_repo):
     ))
     expected = '["-i", "--ignore=E265,E501"]'
     assert mock_make_repo.call_args[1]['args'] == expected
+
+
+def test_main_with_types_and_types_or(mock_make_repo, capsys):
+    with pytest.raises(SystemExit) as exc_info:
+        main.main((
+            '.',
+            '--language', 'python',
+            '--package-name', 'yapf',
+            '--types=c',
+            '--types-or=c',
+            '--types-or=c++',
+        ))
+
+    assert exc_info.value.args[0] == 2
+
+    out, err = capsys.readouterr()
+    assert out == ''
+    assert 'argument --types-or: not allowed with argument --types' in err
+
+
+def test_main_types(mock_make_repo):
+    assert not main.main((
+        '.',
+        '--language', 'python',
+        '--package-name', 'yapf',
+        '--types=c',
+    ))
+    print(mock_make_repo.call_args[1])
+    assert mock_make_repo.call_args[1]['match_key'] == 'types'
+    assert mock_make_repo.call_args[1]['match_val'] == '[c]'
+    assert mock_make_repo.call_args[1]['minimum_pre_commit_version'] == '0'
+
+
+def test_main_types_or_multi(mock_make_repo):
+    assert not main.main((
+        '.',
+        '--language', 'python',
+        '--package-name', 'yapf',
+        '--types-or=c++',
+        '--types-or=c',
+    ))
+    print(mock_make_repo.call_args[1])
+    assert mock_make_repo.call_args[1]['match_key'] == 'types_or'
+    assert mock_make_repo.call_args[1]['match_val'] == '[c++, c]'
+    assert mock_make_repo.call_args[1]['minimum_pre_commit_version'] == '2.9.2'
