@@ -87,7 +87,7 @@ def test_arguments(in_git_dir):
         version='0.6.2', language='python', name='yapf', entry='yapf',
         id='yapf', match_key='files', match_val=r'\.py$', args='["-i"]',
         additional_dependencies='["scikit-learn"]', require_serial='false',
-        minimum_pre_commit_version='2.9.0',
+        minimum_pre_commit_version='0',
     )
     contents = in_git_dir.join('.pre-commit-hooks.yaml').read()
     assert yaml.safe_load(contents) == [{
@@ -99,7 +99,7 @@ def test_arguments(in_git_dir):
         'args': ['-i'],
         'require_serial': False,
         'additional_dependencies': ['scikit-learn'],
-        'minimum_pre_commit_version': '2.9.0',
+        'minimum_pre_commit_version': '0',
     }]
 
 
