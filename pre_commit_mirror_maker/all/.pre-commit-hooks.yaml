@@ -6,4 +6,4 @@
     args: {args}
     require_serial: {require_serial}
     additional_dependencies: {additional_dependencies}
-    minimum_pre_commit_version: {minimum_pre_commit_version}
+    minimum_pre_commit_version: {minimum_pre_commit_version!r}
