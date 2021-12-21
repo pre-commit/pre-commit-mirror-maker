@@ -41,6 +41,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         '--package-name', required=True,
         help='Package name as it appears on the remote package manager.',
     )
+    parser.add_argument(
+        '--description', help='Hook description.', default='',
+    )
 
     mutex = parser.add_mutually_exclusive_group(required=True)
     mutex.add_argument(
@@ -88,6 +91,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     make_repo(
         args.repo_path,
         name=args.package_name,
+        description=args.description,
         language=args.language,
         entry=args.entry or args.package_name,
         id=args.id or args.entry or args.package_name,
