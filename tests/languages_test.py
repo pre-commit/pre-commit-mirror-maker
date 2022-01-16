@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pre_commit_mirror_maker.languages import node_get_package_versions
 from pre_commit_mirror_maker.languages import python_get_package_versions
 from pre_commit_mirror_maker.languages import ruby_get_package_versions
