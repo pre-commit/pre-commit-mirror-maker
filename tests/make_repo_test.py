@@ -65,10 +65,10 @@ def in_git_dir(tmpdir):
 def test_commit_version(in_git_dir):
     _commit_version(
         '.',
-        version='0.24.1', language='ruby', name='scss-lint', entry='scss-lint',
-        id='scss-lint', match_key='files', match_val=r'\.scss$', args='[]',
-        additional_dependencies='[]', require_serial='false',
-        minimum_pre_commit_version='0',
+        version='0.24.1', language='ruby', name='scss-lint', description='',
+        entry='scss-lint', id='scss-lint', match_key='files',
+        match_val=r'\.scss$', args='[]', additional_dependencies='[]',
+        require_serial='false', minimum_pre_commit_version='0',
     )
 
     # Assert that our things got copied over
@@ -86,8 +86,9 @@ def test_commit_version(in_git_dir):
 def test_arguments(in_git_dir):
     _commit_version(
         '.',
-        version='0.6.2', language='python', name='yapf', entry='yapf',
-        id='yapf', match_key='files', match_val=r'\.py$', args='["-i"]',
+        version='0.6.2', language='python', name='yapf',
+        description='Yet another Python formatter.', entry='yapf', id='yapf',
+        match_key='files', match_val=r'\.py$', args='["-i"]',
         additional_dependencies='["scikit-learn"]', require_serial='false',
         minimum_pre_commit_version='0',
     )
@@ -95,6 +96,7 @@ def test_arguments(in_git_dir):
     assert yaml.safe_load(contents) == [{
         'id': 'yapf',
         'name': 'yapf',
+        'description': 'Yet another Python formatter.',
         'entry': 'yapf',
         'language': 'python',
         'files': r'\.py$',
@@ -115,8 +117,8 @@ def fake_versions():
 def test_make_repo_starting_empty(in_git_dir, fake_versions):
     make_repo(
         '.',
-        language='ruby', name='scss-lint', entry='scss-lint', id='scss-lint',
-        match_key='files', match_val=r'\.scss$', args='[]',
+        language='ruby', name='scss-lint', description='', entry='scss-lint',
+        id='scss-lint', match_key='files', match_val=r'\.scss$', args='[]',
         require_serial='false', minimum_pre_commit_version='0',
     )
 
@@ -147,8 +149,8 @@ def test_make_repo_starting_at_version(in_git_dir, fake_versions):
 
     make_repo(
         '.',
-        language='ruby', name='scss-lint', entry='scss-lint', id='scss-lint',
-        match_key='files', match_val=r'\.scss$', args='[]',
+        language='ruby', name='scss-lint', description='', entry='scss-lint',
+        id='scss-lint', match_key='files', match_val=r'\.scss$', args='[]',
         require_serial='false', minimum_pre_commit_version='0',
     )
 
@@ -167,8 +169,8 @@ def test_make_repo_starting_at_version(in_git_dir, fake_versions):
 def test_ruby_integration(in_git_dir):
     make_repo(
         '.',
-        language='ruby', name='scss-lint', entry='scss-lint', id='scss-lint',
-        match_key='files', match_val=r'\.scss$', args='[]',
+        language='ruby', name='scss-lint', description='', entry='scss-lint',
+        id='scss-lint', match_key='files', match_val=r'\.scss$', args='[]',
         require_serial='false', minimum_pre_commit_version='0',
     )
     # Our files should exist
@@ -187,8 +189,8 @@ def test_ruby_integration(in_git_dir):
 def test_node_integration(in_git_dir):
     make_repo(
         '.',
-        language='node', name='jshint', entry='jshint', id='jshint',
-        match_key='files', match_val=r'\.js$', args='[]',
+        language='node', name='jshint', description='', entry='jshint',
+        id='jshint', match_key='files', match_val=r'\.js$', args='[]',
         require_serial='false', minimum_pre_commit_version='0',
     )
     # Our files should exist
@@ -207,8 +209,8 @@ def test_node_integration(in_git_dir):
 def test_python_integration(in_git_dir):
     make_repo(
         '.',
-        language='python', name='flake8', entry='flake8', id='flake8',
-        match_key='files', match_val=r'\.py$', args='[]',
+        language='python', name='flake8', description='', entry='flake8',
+        id='flake8', match_key='files', match_val=r'\.py$', args='[]',
         require_serial='false', minimum_pre_commit_version='0',
     )
     # Our files should exist
@@ -230,9 +232,9 @@ def test_python_integration(in_git_dir):
 def test_rust_integration(in_git_dir):
     make_repo(
         '.',
-        language='rust', name='shellharden', entry='shellharden',
-        id='shellharden', match_key='types', match_val='shell',
-        args='["--replace"]', require_serial='false',
+        language='rust', name='shellharden', description='',
+        entry='shellharden', id='shellharden', match_key='types',
+        match_val='shell', args='["--replace"]', require_serial='false',
         minimum_pre_commit_version='0',
     )
     # Our files should exist

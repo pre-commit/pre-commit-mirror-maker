@@ -1,5 +1,6 @@
 -   id: {id}
     name: {name}
+    description: {description!r}
     entry: {entry}
     language: {language}
     '{match_key}': {match_val}
