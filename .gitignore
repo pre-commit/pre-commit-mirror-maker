@@ -2,8 +2,5 @@
 *.py[co]
 .*.sw[a-z]
 /.coverage
-/.mypy_cache
-/.pytest_cache
 /.tox
 /dist
-/venv*
