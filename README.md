@@ -1,6 +1,6 @@
-[![Build Status](https://dev.azure.com/asottile/asottile/_apis/build/status/pre-commit.pre-commit-mirror-maker?branchName=master)](https://dev.azure.com/asottile/asottile/_build/latest?definitionId=59&branchName=master)
-[![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/asottile/asottile/59/master.svg)](https://dev.azure.com/asottile/asottile/_build/latest?definitionId=59&branchName=master)
-[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/pre-commit/pre-commit-mirror-maker/master.svg)](https://results.pre-commit.ci/latest/github/pre-commit/pre-commit-mirror-maker/master)
+[![Build Status](https://dev.azure.com/asottile/asottile/_apis/build/status/pre-commit.pre-commit-mirror-maker?branchName=main)](https://dev.azure.com/asottile/asottile/_build/latest?definitionId=59&branchName=main)
+[![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/asottile/asottile/59/main.svg)](https://dev.azure.com/asottile/asottile/_build/latest?definitionId=59&branchName=main)
+[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/pre-commit/pre-commit-mirror-maker/main.svg)](https://results.pre-commit.ci/latest/github/pre-commit/pre-commit-mirror-maker/main)
 
 pre-commit-mirror-maker
 =======================
@@ -29,18 +29,18 @@ $ git init mirrors-yapf
 Initialized empty Git repository in /tmp/mirrors-yapf/.git/
 
 $ pre-commit-mirror mirrors-yapf --language python --package-name yapf --args=-i --types python
-[master (root-commit) 88bffee] Mirror: 0.1.3
+[main (root-commit) 88bffee] Mirror: 0.1.3
  3 files changed, 16 insertions(+)
  create mode 100644 .pre-commit-hooks.yaml
  create mode 100644 .version
  create mode 100644 setup.py
-[master 24cd5f4] Mirror: 0.1.4
+[main 24cd5f4] Mirror: 0.1.4
  2 files changed, 2 insertions(+), 2 deletions(-)
-[master 6695a76] Mirror: 0.1.5
+[main 6695a76] Mirror: 0.1.5
 
 ...
 
-[master 091ab92] Mirror: 0.22.0
+[main 091ab92] Mirror: 0.22.0
  2 files changed, 2 insertions(+), 2 deletions(-)
 
 $ ls -al mirrors-yapf/
