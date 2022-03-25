@@ -41,3 +41,4 @@ repos:
     hooks:
     -   id: mypy
         additional_dependencies: [types-all]
+        exclude: ^pre_commit_mirror_maker/python/setup.py$
