@@ -88,13 +88,20 @@ def main(argv: Sequence[str] | None = None) -> int:
         match_key = 'files'
         match_val = args.files_regex
 
+    hook_id = args.id or args.entry or args.package_name
+    if ' ' in hook_id:
+        raise SystemExit(
+            f'hook id should not contain spaces, perhaps specify --id?\n\n'
+            f'-   id: {hook_id}',
+        )
+
     make_repo(
         args.repo_path,
         name=args.package_name,
         description=args.description,
         language=args.language,
         entry=args.entry or args.package_name,
-        id=args.id or args.entry or args.package_name,
+        id=hook_id,
         match_key=match_key,
         match_val=match_val,
         args=json.dumps(split_by_commas(args.args)),
