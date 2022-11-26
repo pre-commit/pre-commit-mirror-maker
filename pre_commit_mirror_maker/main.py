@@ -73,6 +73,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         '--require-serial', action='store_true',
         help='Set `require_serial: true` for the hook',
     )
+    parser.add_argument(
+        '--version-exclude', help='Version regex to exclude', default='!.*',
+    )
     args = parser.parse_args(argv)
 
     minimum_pre_commit_version = '0'
@@ -100,6 +103,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         name=args.package_name,
         description=args.description,
         language=args.language,
+        version_exclude=args.version_exclude,
         entry=args.entry or args.package_name,
         id=hook_id,
         match_key=match_key,

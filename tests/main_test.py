@@ -44,6 +44,7 @@ def test_main_passes_args(mock_make_repo):
         entry='scss-lint-entry',
         id='scss-lint-id', match_key='files', match_val=r'\.scss$', args='[]',
         require_serial='false', minimum_pre_commit_version='0',
+        version_exclude='!.*',
     )
 
 

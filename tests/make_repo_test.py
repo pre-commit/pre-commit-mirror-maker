@@ -109,7 +109,8 @@ def test_arguments(in_git_dir):
 
 @pytest.fixture
 def fake_versions():
-    fns = {'ruby': lambda _: ('0.23.1', '0.24.0', '0.24.1')}
+    versions = ('0.23.1', '0.24.0', '0.24.1-alpha', '0.24.1-beta', '0.24.1')
+    fns = {'ruby': lambda _: versions}
     with mock.patch.dict(LIST_VERSIONS, fns):
         yield
 
@@ -120,6 +121,7 @@ def test_make_repo_starting_empty(in_git_dir, fake_versions):
         language='ruby', name='scss-lint', description='', entry='scss-lint',
         id='scss-lint', match_key='files', match_val=r'\.scss$', args='[]',
         require_serial='false', minimum_pre_commit_version='0',
+        version_exclude='!.*',
     )
 
     # Assert that our things got copied over
@@ -130,12 +132,20 @@ def test_make_repo_starting_empty(in_git_dir, fake_versions):
 
     # Assert some things about the gits
     assert _cmd('git', 'status', '--short') == ''
-    expected = ['v0.23.1', 'v0.24.0', 'v0.24.1']
+    expected = [
+        'v0.23.1',
+        'v0.24.0',
+        'v0.24.1',
+        'v0.24.1-alpha',
+        'v0.24.1-beta',
+    ]
     assert _cmd('git', 'tag', '-l').split() == expected
     log_lines = _cmd('git', 'log', '--oneline').splitlines()
     log_lines_split = [log_line.split() for log_line in log_lines]
     assert log_lines_split == [
         [mock.ANY, 'Mirror:', '0.24.1'],
+        [mock.ANY, 'Mirror:', '0.24.1-beta'],
+        [mock.ANY, 'Mirror:', '0.24.1-alpha'],
         [mock.ANY, 'Mirror:', '0.24.0'],
         [mock.ANY, 'Mirror:', '0.23.1'],
     ]
@@ -152,12 +162,51 @@ def test_make_repo_starting_at_version(in_git_dir, fake_versions):
         language='ruby', name='scss-lint', description='', entry='scss-lint',
         id='scss-lint', match_key='files', match_val=r'\.scss$', args='[]',
         require_serial='false', minimum_pre_commit_version='0',
+        version_exclude='!.*',
     )
 
     assert not in_git_dir.join('hooks.yaml').exists()
 
     # Assert that we only got tags / commits for the stuff we added
-    assert _cmd('git', 'tag', '-l').split() == ['v0.24.0', 'v0.24.1']
+    expected = [
+        'v0.24.0',
+        'v0.24.1',
+        'v0.24.1-alpha',
+        'v0.24.1-beta',
+    ]
+    assert _cmd('git', 'tag', '-l').split() == expected
+    log_lines = _cmd('git', 'log', '--oneline').splitlines()
+    log_lines_split = [log_line.split() for log_line in log_lines]
+    assert log_lines_split == [
+        [mock.ANY, 'Mirror:', '0.24.1'],
+        [mock.ANY, 'Mirror:', '0.24.1-beta'],
+        [mock.ANY, 'Mirror:', '0.24.1-alpha'],
+        [mock.ANY, 'Mirror:', '0.24.0'],
+    ]
+
+
+def test_make_repo_exclude_version(in_git_dir, fake_versions):
+    # Write a version file (as if we've already run this before)
+    in_git_dir.join('.version').write('0.23.1')
+    # make sure this is gone afterwards
+    in_git_dir.join('hooks.yaml').ensure()
+
+    make_repo(
+        '.',
+        language='ruby', name='scss-lint', description='', entry='scss-lint',
+        id='scss-lint', match_key='files', match_val=r'\.scss$', args='[]',
+        require_serial='false', minimum_pre_commit_version='0',
+        version_exclude='.*-[alpha|beta]',
+    )
+
+    assert not in_git_dir.join('hooks.yaml').exists()
+
+    # Assert that we only got tags / commits for the stuff we added
+    expected = [
+        'v0.24.0',
+        'v0.24.1',
+    ]
+    assert _cmd('git', 'tag', '-l').split() == expected
     log_lines = _cmd('git', 'log', '--oneline').splitlines()
     log_lines_split = [log_line.split() for log_line in log_lines]
     assert log_lines_split == [
@@ -172,6 +221,7 @@ def test_ruby_integration(in_git_dir):
         language='ruby', name='scss-lint', description='', entry='scss-lint',
         id='scss-lint', match_key='files', match_val=r'\.scss$', args='[]',
         require_serial='false', minimum_pre_commit_version='0',
+        version_exclude='!.*',
     )
     # Our files should exist
     assert in_git_dir.join('.version').exists()
@@ -192,6 +242,7 @@ def test_node_integration(in_git_dir):
         language='node', name='jshint', description='', entry='jshint',
         id='jshint', match_key='files', match_val=r'\.js$', args='[]',
         require_serial='false', minimum_pre_commit_version='0',
+        version_exclude='!.*',
     )
     # Our files should exist
     assert in_git_dir.join('.version').exists()
@@ -212,6 +263,7 @@ def test_python_integration(in_git_dir):
         language='python', name='flake8', description='', entry='flake8',
         id='flake8', match_key='files', match_val=r'\.py$', args='[]',
         require_serial='false', minimum_pre_commit_version='0',
+        version_exclude='!.*',
     )
     # Our files should exist
     assert in_git_dir.join('.version').exists()
@@ -235,7 +287,7 @@ def test_rust_integration(in_git_dir):
         language='rust', name='shellharden', description='',
         entry='shellharden', id='shellharden', match_key='types',
         match_val='shell', args='["--replace"]', require_serial='false',
-        minimum_pre_commit_version='0',
+        minimum_pre_commit_version='0', version_exclude='!.*',
     )
     # Our files should exist
     assert in_git_dir.join('.version').exists()

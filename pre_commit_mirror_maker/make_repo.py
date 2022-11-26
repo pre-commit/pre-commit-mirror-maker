@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os.path
+import re
 import subprocess
 
 import pkg_resources
@@ -69,7 +70,13 @@ def _commit_version(
     git('tag', f'v{version}')
 
 
-def make_repo(repo: str, *, language: str, name: str, **fmt_vars: str) -> None:
+def make_repo(
+        repo: str, *,
+        language: str,
+        name: str,
+        version_exclude: str,
+        **fmt_vars: str,
+) -> None:
     assert os.path.exists(os.path.join(repo, '.git')), repo
 
     package_versions = LIST_VERSIONS[language](name)
@@ -82,6 +89,9 @@ def make_repo(repo: str, *, language: str, name: str, **fmt_vars: str) -> None:
         versions_to_apply = package_versions
 
     for version in versions_to_apply:
+        if re.match(version_exclude, version):
+            continue
+
         if language in ADDITIONAL_DEPENDENCIES:
             additional_dependencies = ADDITIONAL_DEPENDENCIES[language](
                 name,
