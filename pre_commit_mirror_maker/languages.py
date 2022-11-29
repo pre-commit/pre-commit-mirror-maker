@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import subprocess
 import urllib.request
+from operator import itemgetter
 
 from packaging import version
 
@@ -16,7 +17,12 @@ def ruby_get_package_versions(package_name: str) -> list[str]:
 def node_get_package_versions(package_name: str) -> list[str]:
     cmd = ('npm', 'view', package_name, '--json')
     output = json.loads(subprocess.check_output(cmd))
-    return output['versions']
+    versions = [
+        (k, v) for k, v in output['time'].items()
+        if k not in {'created', 'modified'}
+    ]
+    versions.sort(key=itemgetter(1))
+    return list(map(itemgetter(0), versions))
 
 
 def python_get_package_versions(package_name: str) -> list[str]:
