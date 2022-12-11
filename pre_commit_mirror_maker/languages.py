@@ -15,7 +15,7 @@ def ruby_get_package_versions(package_name: str) -> list[str]:
 
 def node_get_package_versions(package_name: str) -> list[str]:
     # Excludes beta releases
-    cmd = ('npm', 'view', f'"{package_name}@*"', 'version', '--json')
+    cmd = ('npm', 'view', f'{package_name}@*', 'version', '--json')
     return json.loads(subprocess.check_output(cmd))
 
 
