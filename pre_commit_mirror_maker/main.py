@@ -42,6 +42,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         help='Package name as it appears on the remote package manager.',
     )
     parser.add_argument(
+        '--name',
+        help=(
+            'Hook name, displayed as a message during pre-commit runs. '
+            'Defaults to the package name.'
+        ),
+    )
+    parser.add_argument(
         '--description', help='Hook description.', default='',
     )
 
@@ -97,7 +104,8 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     make_repo(
         args.repo_path,
-        name=args.package_name,
+        package_name=args.package_name,
+        name=args.name or args.package_name,
         description=args.description,
         language=args.language,
         entry=args.entry or args.package_name,

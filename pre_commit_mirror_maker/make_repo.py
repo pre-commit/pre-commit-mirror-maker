@@ -69,10 +69,15 @@ def _commit_version(
     git('tag', f'v{version}')
 
 
-def make_repo(repo: str, *, language: str, name: str, **fmt_vars: str) -> None:
+def make_repo(
+        repo: str, *,
+        language: str,
+        package_name: str,
+        **fmt_vars: str,
+) -> None:
     assert os.path.exists(os.path.join(repo, '.git')), repo
 
-    package_versions = LIST_VERSIONS[language](name)
+    package_versions = LIST_VERSIONS[language](package_name)
     version_file = os.path.join(repo, '.version')
     if os.path.exists(version_file):
         previous_version = open(version_file).read().strip()
@@ -84,7 +89,7 @@ def make_repo(repo: str, *, language: str, name: str, **fmt_vars: str) -> None:
     for version in versions_to_apply:
         if language in ADDITIONAL_DEPENDENCIES:
             additional_dependencies = ADDITIONAL_DEPENDENCIES[language](
-                name,
+                package_name,
                 version,
             )
         else:
@@ -92,7 +97,7 @@ def make_repo(repo: str, *, language: str, name: str, **fmt_vars: str) -> None:
 
         _commit_version(
             repo,
-            name=name,
+            package_name=package_name,
             language=language,
             version=version,
             additional_dependencies=json.dumps(additional_dependencies),

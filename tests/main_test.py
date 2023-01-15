@@ -40,11 +40,21 @@ def test_main_passes_args(mock_make_repo):
     ))
     mock_make_repo.assert_called_once_with(
         '.',
-        language='ruby', name='scss-lint', description='',
-        entry='scss-lint-entry',
+        language='ruby', package_name='scss-lint', name='scss-lint',
+        description='', entry='scss-lint-entry',
         id='scss-lint-id', match_key='files', match_val=r'\.scss$', args='[]',
         require_serial='false', minimum_pre_commit_version='0',
     )
+
+
+def test_main_defaults_name_to_package_name(mock_make_repo):
+    assert not main.main((
+        '.',
+        '--language', 'ruby',
+        '--package-name', 'scss-lint',
+        '--files-regex', r'\.scss$',
+    ))
+    assert mock_make_repo.call_args[1]['name'] == 'scss-lint'
 
 
 def test_main_defaults_entry_to_package_name(mock_make_repo):
@@ -66,6 +76,18 @@ def test_main_defaults_id_to_entry(mock_make_repo):
         '--files-regex', r'\.scss$',
     ))
     assert mock_make_repo.call_args[1]['id'] == 'scss-lint'
+
+
+def test_main_with_name(mock_make_repo):
+    assert not main.main((
+        '.',
+        '--language', 'python',
+        '--package-name', 'yapf',
+        '--files-regex', r'\.py$',
+        '--name="Run yapf"',
+    ))
+    expected = '"Run yapf"'
+    assert mock_make_repo.call_args[1]['name'] == expected
 
 
 def test_main_with_args(mock_make_repo):
