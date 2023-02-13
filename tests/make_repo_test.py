@@ -249,3 +249,25 @@ def test_rust_integration(in_git_dir):
     assert _cmd('git', 'log', '--oneline')
 
     # TODO: test that the package is installable
+
+
+def test_golang_integration(in_git_dir):
+    make_repo(
+        '.',
+        language='golang', name='mvdan.cc/gofumpt', description='',
+        entry='gofumpt', id='gofumpt', match_key='types',
+        match_val='go', args='', require_serial='false',
+        minimum_pre_commit_version='3.0.0',
+    )
+    # Our files should exist
+    assert in_git_dir.join('.version').exists()
+    assert in_git_dir.join('.pre-commit-hooks.yaml').exists()
+    assert in_git_dir.join('go.mod').exists()
+    assert in_git_dir.join('main.go').exists()
+
+    # Should have made _some_ tags
+    assert _cmd('git', 'tag', '-l')
+    # Should have made _some_ commits
+    assert _cmd('git', 'log', '--oneline')
+
+    # TODO: test that the package is installable
