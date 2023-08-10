@@ -4,6 +4,7 @@ import json
 import subprocess
 import urllib.request
 
+from packaging import requirements
 from packaging import version
 
 
@@ -20,7 +21,8 @@ def node_get_package_versions(package_name: str) -> list[str]:
 
 
 def python_get_package_versions(package_name: str) -> list[str]:
-    url = f'https://pypi.org/pypi/{package_name}/json'
+    pypi_name = requirements.Requirement(package_name).name
+    url = f'https://pypi.org/pypi/{pypi_name}/json'
     resp = json.load(urllib.request.urlopen(url))
     return sorted(resp['releases'], key=lambda k: version.parse(k))
 

@@ -23,6 +23,12 @@ def test_python_get_package_version_output():
     assert_all_text(ret)
 
 
+def test_python_get_package_version_extras_output():
+    ret = python_get_package_versions('bandit[yaml]')
+    assert ret
+    assert_all_text(ret)
+
+
 def test_ruby_get_package_version_output():
     ret = ruby_get_package_versions('scss-lint')
     assert ret
