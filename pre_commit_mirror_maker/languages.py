@@ -4,6 +4,7 @@ import json
 import subprocess
 import urllib.request
 
+import lxml.html
 from packaging import version
 
 
@@ -31,6 +32,21 @@ def rust_get_package_versions(package_name: str) -> list[str]:
     return list(reversed([version['num'] for version in resp['versions']]))
 
 
+def golang_get_package_versions(package_name: str) -> list[str]:
+    url = f'https://pkg.go.dev/{package_name}?tab=versions'
+    resp = urllib.request.urlopen(url)
+    versions = lxml.html.parse(resp).xpath(
+        "//a[@class='js-versionLink']//text()",
+    )
+    return [str(version) for version in versions[::-1]]
+
+
+def golang_get_additional_dependencies(
+        package_name: str, package_version: str,
+) -> list[str]:
+    return [f'{package_name}@{package_version}']
+
+
 def node_get_additional_dependencies(
         package_name: str, package_version: str,
 ) -> list[str]:
@@ -48,9 +64,11 @@ LIST_VERSIONS = {
     'python': python_get_package_versions,
     'ruby': ruby_get_package_versions,
     'rust': rust_get_package_versions,
+    'golang': golang_get_package_versions,
 }
 
 ADDITIONAL_DEPENDENCIES = {
     'node': node_get_additional_dependencies,
     'rust': rust_get_additional_dependencies,
+    'golang': golang_get_additional_dependencies,
 }
