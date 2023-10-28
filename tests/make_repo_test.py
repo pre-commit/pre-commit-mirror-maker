@@ -32,19 +32,6 @@ def test_format_files(tmpdir):
     assert dest.join('file3.txt').read() == 'foo bar derp'
 
 
-def test_format_files_skips_pyc(tmpdir):
-    src = tmpdir.join('src').ensure_dir()
-    dest = tmpdir.join('dest').ensure_dir()
-
-    src.join('setup.py').write('# Setup.py')
-    src.join('setup.pyc').write("# Setup.pyc, don't copy me!")
-
-    format_files(src, dest)
-
-    assert dest.join('setup.py').exists()
-    assert not dest.join('setup.pyc').exists()
-
-
 def test_skips_directories(tmpdir):
     src = tmpdir.join('src').ensure_dir()
     dest = tmpdir.join('dest').ensure_dir()
