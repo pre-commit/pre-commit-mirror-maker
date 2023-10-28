@@ -1,16 +1,15 @@
 from __future__ import annotations
 
+import importlib.resources
 import json
 import os.path
 import subprocess
-
-import pkg_resources
 
 from pre_commit_mirror_maker.languages import ADDITIONAL_DEPENDENCIES
 from pre_commit_mirror_maker.languages import LIST_VERSIONS
 
 
-def format_files(src: str, dest: str, **fmt_vars: str) -> None:
+def format_files(src: os.PathLike[str], dest: str, **fmt_vars: str) -> None:
     """Copies all files inside src into dest while formatting the contents
     of the files into the output.
 
@@ -47,9 +46,17 @@ def _commit_version(
         **fmt_vars: str,
 ) -> None:
     # 'all' writes the .version and .pre-commit-hooks.yaml files
-    for lang in ('all', language):
-        src = pkg_resources.resource_filename('pre_commit_mirror_maker', lang)
-        format_files(src, repo, language=language, version=version, **fmt_vars)
+    files = importlib.resources.files('pre_commit_mirror_maker')
+    with importlib.resources.as_file(files) as files_p:
+        for lang in ('all', language):
+            src = files_p.joinpath(lang)
+            format_files(
+                src,
+                repo,
+                language=language,
+                version=version,
+                **fmt_vars,
+            )
 
     hooks_yaml = os.path.join(repo, 'hooks.yaml')
     if os.path.exists(hooks_yaml):
