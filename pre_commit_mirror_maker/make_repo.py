@@ -10,9 +10,6 @@ from pre_commit_mirror_maker.languages import ADDITIONAL_DEPENDENCIES
 from pre_commit_mirror_maker.languages import LIST_VERSIONS
 
 
-EXCLUDED_EXTENSIONS = ('.pyc',)
-
-
 def format_files(src: str, dest: str, **fmt_vars: str) -> None:
     """Copies all files inside src into dest while formatting the contents
     of the files into the output.
@@ -34,10 +31,8 @@ def format_files(src: str, dest: str, **fmt_vars: str) -> None:
     assert os.path.exists(dest)
     # Only at the root.  Could be made more complicated and recursive later
     for filename in os.listdir(src):
-        if filename.endswith(EXCLUDED_EXTENSIONS):
-            continue
         # Flat directory structure
-        elif not os.path.isfile(os.path.join(src, filename)):
+        if not os.path.isfile(os.path.join(src, filename)):
             continue
         with open(os.path.join(src, filename)) as f:
             output_contents = f.read().format(**fmt_vars)
