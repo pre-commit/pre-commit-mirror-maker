@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
-from typing import Sequence
+from collections.abc import Sequence
 
 from pre_commit_mirror_maker.make_repo import LIST_VERSIONS
 from pre_commit_mirror_maker.make_repo import make_repo
