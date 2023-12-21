@@ -25,6 +25,7 @@ def node_get_package_versions(package_name: str) -> list[str]:
     )
     return output['versions'][: latest_index + 1]
 
+
 def python_get_package_versions(package_name: str) -> list[str]:
     pypi_name = requirements.Requirement(package_name).name
     url = f'https://pypi.org/pypi/{pypi_name}/json'
