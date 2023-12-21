@@ -17,13 +17,13 @@ def ruby_get_package_versions(package_name: str) -> list[str]:
 def node_get_package_versions(package_name: str) -> list[str]:
     cmd = ('npm', 'view', package_name, '--json')
     output = json.loads(subprocess.check_output(cmd))
-    try:
-        latest = output['dist-tags']['latest']
-        latest_index = output['versions'].index(latest)
-        return output['versions'][:latest_index + 1]
-    except (KeyError, ValueError):
-        return output['versions']
-
+    versions = output['versions']
+    dist_tags = output.get('dist-tags', {})
+    latest = dist_tags.get('latest')
+    latest_index = (
+        versions.index(latest) if latest in versions else len(versions)
+    )
+    return output['versions'][: latest_index + 1]
 
 def python_get_package_versions(package_name: str) -> list[str]:
     pypi_name = requirements.Requirement(package_name).name
