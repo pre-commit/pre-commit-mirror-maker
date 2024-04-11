@@ -10,7 +10,9 @@ from pre_commit_mirror_maker.languages import LIST_VERSIONS
 
 
 def format_files(
-    src: os.PathLike[str], dest: str, ignored_files: list[str],
+    src: os.PathLike[str],
+    dest: str,
+    ignored_files: list[str],
     **fmt_vars: str,
 ) -> None:
     """Copies all files inside src into dest while formatting the contents
@@ -47,11 +49,12 @@ def format_files(
 
 
 def _commit_version(
-        repo: str, *,
-        language: str,
-        version: str,
-        skip_version_file: bool,
-        **fmt_vars: str,
+    repo: str,
+    *,
+    language: str,
+    version: str,
+    skip_version_file: bool,
+    **fmt_vars: str,
 ) -> None:
     # 'all' writes the .version and .pre-commit-hooks.yaml files
     files = importlib.resources.files('pre_commit_mirror_maker')
@@ -63,9 +66,9 @@ def _commit_version(
                 repo,
                 language=language,
                 version=version,
-                ignored_files=['.version']
-                if lang == 'all' and skip_version_file
-                else [],
+                ignored_files=(
+                    ['.version'] if lang == 'all' and skip_version_file else []
+                ),
                 **fmt_vars,
             )
 
@@ -83,7 +86,11 @@ def _commit_version(
 
 
 def make_repo(
-    repo: str, *, language: str, name: str, target_version: str,
+    repo: str,
+    *,
+    language: str,
+    name: str,
+    target_version: str,
     **fmt_vars: str,
 ) -> None:
     assert os.path.exists(os.path.join(repo, '.git')), repo
@@ -92,8 +99,7 @@ def make_repo(
     if target_version:
         if target_version not in package_versions:
             raise SystemExit(
-                f'target version {target_version} not found for '
-                'the package',
+                f"target version {target_version} not found for the package",
             )
         versions_to_apply = [target_version]
     else:
