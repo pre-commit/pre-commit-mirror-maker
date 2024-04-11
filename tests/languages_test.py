@@ -11,38 +11,39 @@ def assert_all_text(versions):
     for version in versions:
         assert type(version) is str
 
+
 def test__node_get_package_version_output():
     package_json = {
         # versions sorted according to number
-        "versions": [
-            "1.0.0",
-            "2.0.0",
-            "2.0.1",
-            "2.0.2",
-            "3.0.0-beta",
-            "3.0.1-beta",
-            "3.0.2",
+        'versions': [
+            '1.0.0',
+            '2.0.0',
+            '2.0.1',
+            '2.0.2',
+            '3.0.0-beta',
+            '3.0.1-beta',
+            '3.0.2',
         ],
         # versions released out of order
-        "time": {
-            "1.0.0": "2017-01-10T03:45:38.963Z",
-            "2.0.0": "2017-01-10T04:31:28.120Z",
-            "3.0.0-beta": "2017-01-10T17:18:52.417Z",
-            "2.0.1": "2017-01-11T04:52:50.871Z",
-            "3.0.1-beta": "2017-01-11T08:55:07.338Z",
-            "2.0.2": "2017-01-11T16:55:07.338Z",
-            "3.0.2": "2017-01-13T20:14:11.275Z",
-        }
+        'time': {
+            '1.0.0': '2017-01-10T03:45:38.963Z',
+            '2.0.0': '2017-01-10T04:31:28.120Z',
+            '3.0.0-beta': '2017-01-10T17:18:52.417Z',
+            '2.0.1': '2017-01-11T04:52:50.871Z',
+            '3.0.1-beta': '2017-01-11T08:55:07.338Z',
+            '2.0.2': '2017-01-11T16:55:07.338Z',
+            '3.0.2': '2017-01-13T20:14:11.275Z',
+        },
     }
     # return versions matches the order they were release in
     assert _node_get_package_versions(package_json) == [
-        "1.0.0",
-        "2.0.0",
-        "3.0.0-beta",
-        "2.0.1",
-        "3.0.1-beta",
-        "2.0.2",
-        "3.0.2",
+        '1.0.0',
+        '2.0.0',
+        '3.0.0-beta',
+        '2.0.1',
+        '3.0.1-beta',
+        '2.0.2',
+        '3.0.2',
     ]
 
 

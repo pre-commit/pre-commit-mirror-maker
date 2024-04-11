@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import subprocess
 import urllib.request
+from typing import Any
 
 from packaging import requirements
 from packaging import version
@@ -14,19 +15,19 @@ def ruby_get_package_versions(package_name: str) -> list[str]:
     return list(reversed([version['number'] for version in resp]))
 
 
-def _node_get_package_versions(package_json):
+def _node_get_package_versions(package_json: dict[str, Any]) -> list[str]:
     versions = package_json['versions']
     version_timestamps = package_json['time']
 
     # Sort the versions according to their timestamps, to prevent versions
     # from being missed if they get released out of order.
-    versions.sort(key=lambda e: version_timestamps.get(e, ""))
+    versions.sort(key=lambda e: version_timestamps.get(e, ''))
     return versions
 
 
 def node_get_package_versions(package_name: str) -> list[str]:
     cmd = ('npm', 'view', package_name, '--json')
-    output = json.loads(subprocess.check_output(cmd, shell=True))
+    output = json.loads(subprocess.check_output(cmd))
     return _node_get_package_versions(output)
 
 
