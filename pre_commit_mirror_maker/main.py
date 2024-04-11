@@ -73,6 +73,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         '--require-serial', action='store_true',
         help='Set `require_serial: true` for the hook',
     )
+    parser.add_argument(
+        '--target-version',
+        help=(
+            'Create a mirror for a specific version of the target package. '
+            'This action won''t update the .version file. '
+        ),
+    )
     args = parser.parse_args(argv)
 
     minimum_pre_commit_version = '0'
@@ -107,6 +114,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         args=json.dumps(split_by_commas(args.args)),
         require_serial=json.dumps(args.require_serial),
         minimum_pre_commit_version=minimum_pre_commit_version,
+        target_version=args.target_version,
     )
     return 0
 

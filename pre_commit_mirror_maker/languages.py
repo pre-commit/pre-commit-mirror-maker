@@ -16,7 +16,7 @@ def ruby_get_package_versions(package_name: str) -> list[str]:
 
 def node_get_package_versions(package_name: str) -> list[str]:
     cmd = ('npm', 'view', package_name, '--json')
-    output = json.loads(subprocess.check_output(cmd))
+    output = json.loads(subprocess.check_output(cmd, shell=True))
     return output['versions']
 
 

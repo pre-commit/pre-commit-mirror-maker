@@ -9,7 +9,10 @@ from pre_commit_mirror_maker.languages import ADDITIONAL_DEPENDENCIES
 from pre_commit_mirror_maker.languages import LIST_VERSIONS
 
 
-def format_files(src: os.PathLike[str], dest: str, **fmt_vars: str) -> None:
+def format_files(
+    src: os.PathLike[str], dest: str, ignored_files: list[str],
+    **fmt_vars: str,
+) -> None:
     """Copies all files inside src into dest while formatting the contents
     of the files into the output.
 
@@ -24,12 +27,16 @@ def format_files(src: os.PathLike[str], dest: str, **fmt_vars: str) -> None:
     herp bar derp
     :param text src: Source directory.
     :param text dest: Destination directory.
+    :param list[str] ignored_files: List of files to ignore in the source
+           directory.
     :param dict fmt_vars: Vars to format into the files.
     """
     assert os.path.exists(src)
     assert os.path.exists(dest)
     # Only at the root.  Could be made more complicated and recursive later
     for filename in os.listdir(src):
+        if filename in ignored_files:
+            continue
         # Flat directory structure
         if not os.path.isfile(os.path.join(src, filename)):
             continue
@@ -43,6 +50,7 @@ def _commit_version(
         repo: str, *,
         language: str,
         version: str,
+        skip_version_file: bool,
         **fmt_vars: str,
 ) -> None:
     # 'all' writes the .version and .pre-commit-hooks.yaml files
@@ -55,6 +63,9 @@ def _commit_version(
                 repo,
                 language=language,
                 version=version,
+                ignored_files=['.version']
+                if lang == 'all' and skip_version_file
+                else [],
                 **fmt_vars,
             )
 
@@ -71,17 +82,28 @@ def _commit_version(
     git('tag', f'v{version}')
 
 
-def make_repo(repo: str, *, language: str, name: str, **fmt_vars: str) -> None:
+def make_repo(
+    repo: str, *, language: str, name: str, target_version: str,
+    **fmt_vars: str,
+) -> None:
     assert os.path.exists(os.path.join(repo, '.git')), repo
 
     package_versions = LIST_VERSIONS[language](name)
-    version_file = os.path.join(repo, '.version')
-    if os.path.exists(version_file):
-        previous_version = open(version_file).read().strip()
-        previous_version_index = package_versions.index(previous_version)
-        versions_to_apply = package_versions[previous_version_index + 1:]
+    if target_version:
+        if target_version not in package_versions:
+            raise SystemExit(
+                f'target version {target_version} not found for '
+                'the package',
+            )
+        versions_to_apply = [target_version]
     else:
-        versions_to_apply = package_versions
+        version_file = os.path.join(repo, '.version')
+        if os.path.exists(version_file):
+            previous_version = open(version_file).read().strip()
+            previous_version_index = package_versions.index(previous_version)
+            versions_to_apply = package_versions[previous_version_index + 1:]
+        else:
+            versions_to_apply = package_versions
 
     for version in versions_to_apply:
         if language in ADDITIONAL_DEPENDENCIES:
@@ -98,5 +120,6 @@ def make_repo(repo: str, *, language: str, name: str, **fmt_vars: str) -> None:
             language=language,
             version=version,
             additional_dependencies=json.dumps(additional_dependencies),
+            skip_version_file=bool(target_version),
             **fmt_vars,
         )
