@@ -14,10 +14,23 @@ def ruby_get_package_versions(package_name: str) -> list[str]:
     return list(reversed([version['number'] for version in resp]))
 
 
+def _node_get_package_versions(package_json):
+    versions = package_json['versions']
+    version_timestamps = package_json['time']
+
+    def version_timestamp(e):
+        return version_timestamps.get(e, "")
+
+    # Sort the versions according to their timestamps, to prevent versions
+    # from being missed if they get released out of order.
+    versions.sort(key=version_timestamp)
+    return versions
+
+
 def node_get_package_versions(package_name: str) -> list[str]:
     cmd = ('npm', 'view', package_name, '--json')
-    output = json.loads(subprocess.check_output(cmd))
-    return output['versions']
+    output = json.loads(subprocess.check_output(cmd, shell=True))
+    return _node_get_package_versions(output)
 
 
 def python_get_package_versions(package_name: str) -> list[str]:
