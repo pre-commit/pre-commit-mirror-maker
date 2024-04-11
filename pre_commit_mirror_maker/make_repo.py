@@ -99,7 +99,7 @@ def make_repo(
     if target_version:
         if target_version not in package_versions:
             raise SystemExit(
-                f"target version {target_version} not found for the package",
+                f'target version {target_version} not found for the package',
             )
         versions_to_apply = [target_version]
     else:
