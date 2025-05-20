@@ -256,3 +256,23 @@ def test_docker_image_integration(in_git_dir):
     assert _cmd('git', 'log', '--oneline')
 
     # TODO: test that the package is installable
+
+
+def test_docker_image_integration_official_repo(in_git_dir):
+    make_repo(
+        '.',
+        language='docker_image', name='python', description='',
+        entry='python', id='python-docker', match_key='files',
+        match_val=r'\.py$', args='[]', require_serial='false',
+        minimum_pre_commit_version='0',
+    )
+    # Our files should exist
+    assert in_git_dir.join('.version').exists()
+    assert in_git_dir.join('.pre-commit-hooks.yaml').exists()
+
+    # Should have made _some_ tags
+    assert _cmd('git', 'tag', '-l')
+    # Should have made _some_ commits
+    assert _cmd('git', 'log', '--oneline')
+
+    # TODO: test that the package is installable
