@@ -68,7 +68,7 @@ def _commit_version(
     # Commit and tag
     git('add', '.')
     git('commit', '-m', f'Mirror: {version}')
-    git('tag', f'v{version}')
+    git('tag', f'v{version}' if language != 'docker_image' else version)
 
 
 def make_repo(repo: str, *, language: str, name: str, **fmt_vars: str) -> None:
