@@ -1,0 +1,10 @@
+-   id: {id}
+    name: {name}
+    description: {description!r}
+    entry: '{entry}:{version}'
+    language: {language}
+    '{match_key}': {match_val}
+    args: {args}
+    require_serial: {require_serial}
+    additional_dependencies: {additional_dependencies}
+    minimum_pre_commit_version: {minimum_pre_commit_version!r}
