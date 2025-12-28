@@ -3,3 +3,4 @@ coverage
 pre-commit
 pytest
 pytest-env
+setuptools
