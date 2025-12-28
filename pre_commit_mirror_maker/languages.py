@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 import urllib.request
 
@@ -33,6 +34,18 @@ def rust_get_package_versions(package_name: str) -> list[str]:
     return list(reversed([version['num'] for version in resp['versions']]))
 
 
+def golang_get_package_versions(package_name: str) -> list[str]:
+    # https://pkg.go.dev/golang.org/x/mod/module#EscapePath
+    # https://github.com/golang/mod/blob/d271cf332fd221d661d13b186b51a11d7e66ff74/module/module.go#L707
+    escaped = re.sub(
+        r'[A-Z]',
+        lambda m: f'!{m.group(0).lower()}', package_name,
+    )
+    url = f'https://proxy.golang.org/{escaped}/@v/list'
+    resp = urllib.request.urlopen(url).read().decode()
+    return sorted(resp.splitlines(), key=version.parse)
+
+
 def node_get_additional_dependencies(
         package_name: str, package_version: str,
 ) -> list[str]:
@@ -45,7 +58,14 @@ def rust_get_additional_dependencies(
     return [f'cli:{package_name}:{package_version}']
 
 
+def golang_get_additional_dependencies(
+        package_name: str, package_version: str,
+) -> list[str]:
+    return [f'{package_name}@{package_version}']
+
+
 LIST_VERSIONS = {
+    'golang': golang_get_package_versions,
     'node': node_get_package_versions,
     'python': python_get_package_versions,
     'ruby': ruby_get_package_versions,
@@ -53,6 +73,7 @@ LIST_VERSIONS = {
 }
 
 ADDITIONAL_DEPENDENCIES = {
+    'golang': golang_get_additional_dependencies,
     'node': node_get_additional_dependencies,
     'rust': rust_get_additional_dependencies,
 }
