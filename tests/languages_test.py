@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pre_commit_mirror_maker.languages import golang_get_package_versions
 from pre_commit_mirror_maker.languages import node_get_package_versions
 from pre_commit_mirror_maker.languages import python_get_package_versions
 from pre_commit_mirror_maker.languages import ruby_get_package_versions
@@ -37,5 +38,11 @@ def test_ruby_get_package_version_output():
 
 def test_rust_get_package_version_output():
     ret = rust_get_package_versions('clap')
+    assert ret
+    assert_all_text(ret)
+
+
+def test_golang_get_package_version_output():
+    ret = golang_get_package_versions('mvdan.cc/gofumpt')
     assert ret
     assert_all_text(ret)
