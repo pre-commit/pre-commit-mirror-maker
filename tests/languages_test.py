@@ -45,4 +45,5 @@ def test_rust_get_package_version_output():
 def test_golang_get_package_version_output():
     ret = golang_get_package_versions('mvdan.cc/gofumpt')
     assert ret
+    assert not any(v.startswith('v') for v in ret)
     assert_all_text(ret)
