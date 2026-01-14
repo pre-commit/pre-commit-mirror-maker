@@ -43,7 +43,10 @@ def golang_get_package_versions(package_name: str) -> list[str]:
     )
     url = f'https://proxy.golang.org/{escaped}/@v/list'
     resp = urllib.request.urlopen(url).read().decode()
-    return sorted(resp.splitlines(), key=version.parse)
+    return sorted(
+        (v.removeprefix('v') for v in resp.splitlines()),
+        key=version.parse,
+    )
 
 
 def node_get_additional_dependencies(
@@ -61,7 +64,7 @@ def rust_get_additional_dependencies(
 def golang_get_additional_dependencies(
         package_name: str, package_version: str,
 ) -> list[str]:
-    return [f'{package_name}@{package_version}']
+    return [f'{package_name}@v{package_version}']
 
 
 LIST_VERSIONS = {
