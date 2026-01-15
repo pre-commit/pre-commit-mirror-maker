@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import subprocess
+import urllib.error
 import urllib.request
 
 from packaging import requirements
@@ -41,11 +43,26 @@ def golang_get_package_versions(package_name: str) -> list[str]:
         r'[A-Z]',
         lambda m: f'!{m.group(0).lower()}', package_name,
     )
-    url = f'https://proxy.golang.org/{escaped}/@v/list'
-    resp = urllib.request.urlopen(url).read().decode()
-    return sorted(
-        (v.removeprefix('v') for v in resp.splitlines()),
-        key=version.parse,
+
+    # Greedily choose the longest non-404 path
+    # (based on https://go.dev/ref/mod#resolve-pkg-mod)
+    while escaped:
+        url = f'https://proxy.golang.org/{escaped}/@v/list'
+        try:
+            resp = urllib.request.urlopen(url).read().decode()
+        except urllib.error.HTTPError as exc:
+            if exc.code == 404:
+                escaped = os.path.dirname(escaped)
+                continue
+            raise
+
+        return sorted(
+            (v.removeprefix('v') for v in resp.splitlines()),
+            key=version.parse,
+        )
+
+    raise ValueError(
+        f'Cannot find package name {package_name} on proxy.golang.org',
     )
 
 

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+
 from pre_commit_mirror_maker.languages import golang_get_package_versions
 from pre_commit_mirror_maker.languages import node_get_package_versions
 from pre_commit_mirror_maker.languages import python_get_package_versions
@@ -42,8 +44,20 @@ def test_rust_get_package_version_output():
     assert_all_text(ret)
 
 
-def test_golang_get_package_version_output():
-    ret = golang_get_package_versions('mvdan.cc/gofumpt')
+@pytest.mark.parametrize(
+    'package_name',
+    (
+        'mvdan.cc/gofumpt',
+        'mvdan.cc/sh/v3/cmd/shfmt',
+    ),
+)
+def test_golang_get_package_version_output(package_name):
+    ret = golang_get_package_versions(package_name)
     assert ret
     assert not any(v.startswith('v') for v in ret)
     assert_all_text(ret)
+
+
+def test_golang_get_package_version_invalid_package():
+    with pytest.raises(ValueError):
+        golang_get_package_versions('mvdan.cc/foo')
