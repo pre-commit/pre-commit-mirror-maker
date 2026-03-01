@@ -77,9 +77,9 @@ def make_repo(repo: str, *, language: str, name: str, **fmt_vars: str) -> None:
     package_versions = LIST_VERSIONS[language](name)
     version_file = os.path.join(repo, '.version')
     if os.path.exists(version_file):
-        previous_version = open(version_file).read().strip()
-        previous_version_index = package_versions.index(previous_version)
-        versions_to_apply = package_versions[previous_version_index + 1:]
+        with open(version_file) as f:
+            previous_versions = f.read().strip().splitlines()
+        versions_to_apply = [v for v in package_versions if v not in previous_versions]
     else:
         versions_to_apply = package_versions
 
@@ -91,6 +91,9 @@ def make_repo(repo: str, *, language: str, name: str, **fmt_vars: str) -> None:
             )
         else:
             additional_dependencies = []
+
+        with open(version_file, 'a') as f:
+            f.write(version + '\n')
 
         _commit_version(
             repo,
