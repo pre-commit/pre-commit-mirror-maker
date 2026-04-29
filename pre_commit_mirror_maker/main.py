@@ -73,6 +73,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         '--require-serial', action='store_true',
         help='Set `require_serial: true` for the hook',
     )
+    parser.add_argument(
+        '--pass-filenames', action=argparse.BooleanOptionalAction,
+        default=True,
+        help='Set `pass_filenames` for the hook',
+    )
     args = parser.parse_args(argv)
 
     minimum_pre_commit_version = '0'
@@ -105,6 +110,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         match_key=match_key,
         match_val=match_val,
         args=json.dumps(split_by_commas(args.args)),
+        pass_filenames=json.dumps(args.pass_filenames),
         require_serial=json.dumps(args.require_serial),
         minimum_pre_commit_version=minimum_pre_commit_version,
     )

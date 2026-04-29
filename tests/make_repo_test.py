@@ -13,6 +13,13 @@ from pre_commit_mirror_maker.make_repo import format_files
 from pre_commit_mirror_maker.make_repo import make_repo
 
 
+_KWARGS = {
+    'pass_filenames': 'true',
+    'require_serial': 'false',
+    'minimum_pre_commit_version': '0',
+}
+
+
 def _cmd(*cmd):
     return subprocess.check_output(cmd).strip().decode()
 
@@ -55,7 +62,7 @@ def test_commit_version(in_git_dir):
         version='0.24.1', language='ruby', name='scss-lint', description='',
         entry='scss-lint', id='scss-lint', match_key='files',
         match_val=r'\.scss$', args='[]', additional_dependencies='[]',
-        require_serial='false', minimum_pre_commit_version='0',
+        **_KWARGS,
     )
 
     # Assert that our things got copied over
@@ -76,8 +83,8 @@ def test_arguments(in_git_dir):
         version='0.6.2', language='python', name='yapf',
         description='Yet another Python formatter.', entry='yapf', id='yapf',
         match_key='files', match_val=r'\.py$', args='["-i"]',
-        additional_dependencies='["scikit-learn"]', require_serial='false',
-        minimum_pre_commit_version='0',
+        additional_dependencies='["scikit-learn"]',
+        **(_KWARGS | {'pass_filenames': 'false'}),
     )
     contents = in_git_dir.join('.pre-commit-hooks.yaml').read()
     assert yaml.safe_load(contents) == [{
@@ -88,6 +95,7 @@ def test_arguments(in_git_dir):
         'language': 'python',
         'files': r'\.py$',
         'args': ['-i'],
+        'pass_filenames': False,
         'require_serial': False,
         'additional_dependencies': ['scikit-learn'],
         'minimum_pre_commit_version': '0',
@@ -106,7 +114,7 @@ def test_make_repo_starting_empty(in_git_dir, fake_versions):
         '.',
         language='ruby', name='scss-lint', description='', entry='scss-lint',
         id='scss-lint', match_key='files', match_val=r'\.scss$', args='[]',
-        require_serial='false', minimum_pre_commit_version='0',
+        **_KWARGS,
     )
 
     # Assert that our things got copied over
@@ -138,7 +146,7 @@ def test_make_repo_starting_at_version(in_git_dir, fake_versions):
         '.',
         language='ruby', name='scss-lint', description='', entry='scss-lint',
         id='scss-lint', match_key='files', match_val=r'\.scss$', args='[]',
-        require_serial='false', minimum_pre_commit_version='0',
+        **_KWARGS,
     )
 
     assert not in_git_dir.join('hooks.yaml').exists()
@@ -158,7 +166,7 @@ def test_ruby_integration(in_git_dir):
         '.',
         language='ruby', name='scss-lint', description='', entry='scss-lint',
         id='scss-lint', match_key='files', match_val=r'\.scss$', args='[]',
-        require_serial='false', minimum_pre_commit_version='0',
+        **_KWARGS,
     )
     # Our files should exist
     assert in_git_dir.join('.version').exists()
@@ -178,7 +186,7 @@ def test_node_integration(in_git_dir):
         '.',
         language='node', name='jshint', description='', entry='jshint',
         id='jshint', match_key='files', match_val=r'\.js$', args='[]',
-        require_serial='false', minimum_pre_commit_version='0',
+        **_KWARGS,
     )
     # Our files should exist
     assert in_git_dir.join('.version').exists()
@@ -198,7 +206,7 @@ def test_python_integration(in_git_dir):
         '.',
         language='python', name='flake8', description='', entry='flake8',
         id='flake8', match_key='files', match_val=r'\.py$', args='[]',
-        require_serial='false', minimum_pre_commit_version='0',
+        **_KWARGS,
     )
     # Our files should exist
     assert in_git_dir.join('.version').exists()
@@ -221,8 +229,7 @@ def test_rust_integration(in_git_dir):
         '.',
         language='rust', name='shellharden', description='',
         entry='shellharden', id='shellharden', match_key='types',
-        match_val='shell', args='["--replace"]', require_serial='false',
-        minimum_pre_commit_version='0',
+        match_val='shell', args='["--replace"]', **_KWARGS,
     )
     # Our files should exist
     assert in_git_dir.join('.version').exists()
@@ -243,7 +250,7 @@ def test_golang_integration(in_git_dir):
         '.',
         language='golang', name='mvdan.cc/gofumpt', description='',
         entry='gofumpt', id='gofumpt', match_key='types', match_val='go',
-        args='-w', require_serial='false', minimum_pre_commit_version='0',
+        args='-w', **_KWARGS,
     )
     # Our files should exist
     assert in_git_dir.join('.version').exists()
