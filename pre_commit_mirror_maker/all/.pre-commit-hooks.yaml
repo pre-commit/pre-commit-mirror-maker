@@ -1,5 +1,5 @@
 -   id: {id}
-    name: {name}
+    name: {name!r}
     description: {description!r}
     entry: {entry}
     language: {language}
