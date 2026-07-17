@@ -43,7 +43,8 @@ def test_main_passes_args(mock_make_repo):
         language='ruby', name='scss-lint', description='',
         entry='scss-lint-entry',
         id='scss-lint-id', match_key='files', match_val=r'\.scss$', args='[]',
-        require_serial='false', minimum_pre_commit_version='0',
+        pass_filenames='true', require_serial='false',
+        minimum_pre_commit_version='0',
     )
 
 
@@ -78,6 +79,17 @@ def test_main_with_args(mock_make_repo):
     ))
     expected = '["-i", "--ignore=E265,E501"]'
     assert mock_make_repo.call_args[1]['args'] == expected
+
+
+def test_main_no_pass_filenames(mock_make_repo):
+    assert not main.main((
+        '.',
+        '--language', 'python',
+        '--package-name', 'yapf',
+        '--files-regex', r'\.py$',
+        '--no-pass-filenames',
+    ))
+    assert mock_make_repo.call_args[1]['pass_filenames'] == 'false'
 
 
 def test_main_with_types_and_types_or(mock_make_repo, capsys):
