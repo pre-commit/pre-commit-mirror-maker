@@ -36,6 +36,16 @@ def rust_get_package_versions(package_name: str) -> list[str]:
     return list(reversed([version['num'] for version in resp['versions']]))
 
 
+def haskell_get_package_versions(package_name: str) -> list[str]:
+    url = f'https://hackage.haskell.org/package/{package_name}/preferred.json'
+    resp = json.load(urllib.request.urlopen(url))
+    versions = {
+        *resp.get('normal-version', ()),
+        *resp.get('deprecated-version', ()),
+    }
+    return sorted(versions, key=version.parse)
+
+
 def golang_get_package_versions(package_name: str) -> list[str]:
     # https://pkg.go.dev/golang.org/x/mod/module#EscapePath
     # https://github.com/golang/mod/blob/d271cf332fd221d661d13b186b51a11d7e66ff74/module/module.go#L707
@@ -78,6 +88,12 @@ def rust_get_additional_dependencies(
     return [f'cli:{package_name}:{package_version}']
 
 
+def haskell_get_additional_dependencies(
+        package_name: str, package_version: str,
+) -> list[str]:
+    return [f'{package_name}-{package_version}']
+
+
 def golang_get_additional_dependencies(
         package_name: str, package_version: str,
 ) -> list[str]:
@@ -86,6 +102,7 @@ def golang_get_additional_dependencies(
 
 LIST_VERSIONS = {
     'golang': golang_get_package_versions,
+    'haskell': haskell_get_package_versions,
     'node': node_get_package_versions,
     'python': python_get_package_versions,
     'ruby': ruby_get_package_versions,
@@ -94,6 +111,7 @@ LIST_VERSIONS = {
 
 ADDITIONAL_DEPENDENCIES = {
     'golang': golang_get_additional_dependencies,
+    'haskell': haskell_get_additional_dependencies,
     'node': node_get_additional_dependencies,
     'rust': rust_get_additional_dependencies,
 }

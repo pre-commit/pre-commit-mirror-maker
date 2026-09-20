@@ -284,3 +284,22 @@ def test_golang_integration(in_git_dir):
     assert _cmd('git', 'log', '--oneline')
 
     # TODO: test that the package is installable
+
+
+def test_haskell_integration(in_git_dir):
+    make_repo(
+        '.',
+        language='haskell', name='hlint', description='',
+        entry='hlint', id='hlint', match_key='types', match_val='haskell',
+        args='[]', require_serial='false', minimum_pre_commit_version='0',
+    )
+    assert in_git_dir.join('.version').exists()
+    assert in_git_dir.join('.pre-commit-hooks.yaml').exists()
+
+    contents = in_git_dir.join('.pre-commit-hooks.yaml').read()
+    assert yaml.safe_load(contents)[0]['additional_dependencies'] == [
+        f"hlint-{in_git_dir.join('.version').read().strip()}",
+    ]
+
+    assert _cmd('git', 'tag', '-l')
+    assert _cmd('git', 'log', '--oneline')

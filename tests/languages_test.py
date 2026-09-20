@@ -3,6 +3,7 @@ from __future__ import annotations
 import pytest
 
 from pre_commit_mirror_maker.languages import golang_get_package_versions
+from pre_commit_mirror_maker.languages import haskell_get_package_versions
 from pre_commit_mirror_maker.languages import node_get_package_versions
 from pre_commit_mirror_maker.languages import python_get_package_versions
 from pre_commit_mirror_maker.languages import ruby_get_package_versions
@@ -40,6 +41,12 @@ def test_ruby_get_package_version_output():
 
 def test_rust_get_package_version_output():
     ret = rust_get_package_versions('clap')
+    assert ret
+    assert_all_text(ret)
+
+
+def test_haskell_get_package_version_output():
+    ret = haskell_get_package_versions('hlint')
     assert ret
     assert_all_text(ret)
 
