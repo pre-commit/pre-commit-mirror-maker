@@ -47,6 +47,22 @@ def test_main_passes_args(mock_make_repo):
     )
 
 
+def test_main_passes_haskell_args(mock_make_repo):
+    assert not main.main((
+        '.',
+        '--language', 'haskell',
+        '--package-name', 'hlint',
+        '--types', 'haskell',
+    ))
+    mock_make_repo.assert_called_once_with(
+        '.',
+        language='haskell', name='hlint', description='',
+        entry='hlint',
+        id='hlint', match_key='types', match_val='[haskell]', args='[]',
+        require_serial='false', minimum_pre_commit_version='0',
+    )
+
+
 def test_main_defaults_entry_to_package_name(mock_make_repo):
     assert not main.main((
         '.',

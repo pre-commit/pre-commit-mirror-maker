@@ -50,6 +50,8 @@ def _commit_version(
     with importlib.resources.as_file(files) as files_p:
         for lang in ('all', language):
             src = files_p.joinpath(lang)
+            if not os.path.exists(src):
+                continue
             format_files(
                 src,
                 repo,
